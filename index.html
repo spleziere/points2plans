@@ -136,6 +136,10 @@ a{color:inherit}
   .modes button{padding:.55rem .65rem; font-size:.75rem}
 }
 
+/* ---------- Einstieg: Nav + Viewer füllen den ersten Bildschirm ---------- */
+.intro{display:flex; flex-direction:column; height:100vh; height:100svh; min-height:520px; padding-bottom:var(--s1)}
+.intro .viewer{flex:1 1 auto; aspect-ratio:auto; min-height:0}
+
 /* ---------- Strip of facts ---------- */
 .facts{display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--ink); margin-top:var(--s3)}
 .facts div{padding:var(--s1) var(--s1) var(--s1) 0; display:flex; flex-direction:column; gap:.35rem; min-width:0}
@@ -391,6 +395,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
 <body>
 
 <div class="wrap">
+  <div class="intro" id="top">
   <nav class="nav" aria-label="Hauptnavigation">
     <a class="logo" href="#top" aria-label="points2plans Startseite">
       <svg viewBox="0 0 22 22" aria-hidden="true">
@@ -416,18 +421,6 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
     </div>
   </nav>
 
-  <header class="hero" id="top">
-    <span class="eyebrow label">Scan-to-Plan &nbsp;/&nbsp; 2D-Bestandspläne</span>
-    <h1>Aus <em>Punkten</em> werden Pläne<span class="dot">.</span></h1>
-    <div class="lede">
-      <p>Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen Ihre Grundrisse als DWG und PDF zum Download bereit.</p>
-      <div class="ctas">
-        <a class="btn accent" href="#upload" data-mail>Punktwolke senden</a>
-        <a class="btn ghost" href="#formate">Beispiele ansehen</a>
-      </div>
-    </div>
-  </header>
-
   <div class="viewer" id="viewer">
     <canvas id="cv" aria-label="Animierte Punktwolke einer Wohnung, die sich in einen Grundriss verwandelt" role="img"></canvas>
     <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
@@ -443,6 +436,19 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
     </div>
     <div class="coords mono" id="coords">Altbau, 3. OG · Berlin-Prenzlauer Berg<br>Station 03 · X 4.500 · Y 3.000 · Z 1.500</div>
   </div>
+  </div>
+
+  <header class="hero">
+    <span class="eyebrow label">Scan-to-Plan &nbsp;/&nbsp; 2D-Bestandspläne</span>
+    <h1>Aus <em>Punkten</em> werden Pläne<span class="dot">.</span></h1>
+    <div class="lede">
+      <p>Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen Ihre Grundrisse als DWG und PDF zum Download bereit.</p>
+      <div class="ctas">
+        <a class="btn accent" href="#upload" data-mail>Punktwolke senden</a>
+        <a class="btn ghost" href="#formate">Beispiele ansehen</a>
+      </div>
+    </div>
+  </header>
 
   <div class="facts">
     <div><span class="label">Lieferzeit</span><strong>48 h</strong></div>
