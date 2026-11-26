@@ -1,0 +1,202 @@
+/* ============================================================
+   ÜBERSETZUNGEN · points2plans
+   Die Seite ist auf Deutsch geschrieben (index.html).
+   Hier steht für jeden deutschen Text die englische und spanische Fassung.
+   Text ändern: den deutschen Text in index.html UND den Schlüssel hier
+   gleich halten, sonst bleibt die Stelle deutsch.
+   ============================================================ */
+window.P2P_I18N = {
+  langs: ["de", "en", "es"],
+
+  meta: {
+    de: { title: "points2plans · Punktwolke zu Grundriss und BIM",
+          description: "Punktwolke als .ply oder .obj hochladen, nach 48 Stunden IFC-Modell, DWG und PDF-Plansatz herunterladen. Festpreis pro Quadratmeter." },
+    en: { title: "points2plans · Point cloud to floor plan and BIM",
+          description: "Upload your point cloud as .ply or .obj and download an IFC model, DWG and PDF drawing set within 48 hours. Fixed price per square metre." },
+    es: { title: "points2plans · De nube de puntos a plano y BIM",
+          description: "Suba su nube de puntos en .ply u .obj y descargue en 48 horas un modelo IFC, DWG y un juego de planos en PDF. Precio fijo por metro cuadrado." }
+  },
+
+  /* Statische Texte: Schlüssel = deutscher Text aus index.html */
+  text: {
+    "Ablauf": { en: "Process", es: "Proceso" },
+    "Formate": { en: "Formats", es: "Formatos" },
+    "Preise": { en: "Pricing", es: "Precios" },
+    "Hochladen": { en: "Upload", es: "Subir" },
+    "Aus": { en: "From", es: "De" },
+    "Punkten": { en: "points", es: "puntos" },
+    "werden Pläne": { en: "to plans", es: "a planos" },
+    "Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen IFC-Modell, DWG und PDF-Plansatz zum Download bereit.":
+      { en: "Upload your point cloud as .ply or .obj. Two working days later, your IFC model, DWG and PDF drawing set are ready to download.",
+        es: "Suba su nube de puntos en .ply u .obj. Dos días laborables después, el modelo IFC, el DWG y el juego de planos en PDF están listos para descargar." },
+    "Punktwolke hochladen": { en: "Upload point cloud", es: "Subir nube de puntos" },
+    "Beispiele ansehen": { en: "See examples", es: "Ver ejemplos" },
+    "Punktwolke": { en: "Point cloud", es: "Nube de puntos" },
+    "Grundriss": { en: "Floor plan", es: "Planta" },
+    "Ziehen zum Drehen": { en: "Drag to rotate", es: "Arrastre para girar" },
+    "Altbau, 3. OG · Berlin-Prenzlauer Berg": { en: "Period flat, 3rd floor · Berlin-Prenzlauer Berg", es: "Edificio antiguo, 3.ª planta · Berlín-Prenzlauer Berg" },
+    "Lieferzeit": { en: "Turnaround", es: "Plazo" },
+    "Genauigkeit": { en: "Accuracy", es: "Precisión" },
+    "Ab": { en: "From", es: "Desde" },
+    "0,60 €/m²": { en: "€0.60/m²", es: "0,60 €/m²" },
+    "Rechenzentrum": { en: "Data centre", es: "Centro de datos" },
+    "Frankfurt": { en: "Frankfurt", es: "Fráncfort" },
+    "Auftrag": { en: "Order", es: "Pedido" },
+    "Eine Datei hochladen, drei Formate zurückbekommen.": { en: "Upload one file, get three formats back.", es: "Suba un archivo, reciba tres formatos." },
+    "Punktwolke hier ablegen": { en: "Drop your point cloud here", es: "Suelte aquí su nube de puntos" },
+    "oder klicken, um eine Datei auszuwählen": { en: "or click to choose a file", es: "o haga clic para elegir un archivo" },
+    "bis 20 GB": { en: "up to 20 GB", es: "hasta 20 GB" },
+    "Entfernen": { en: "Remove", es: "Quitar" },
+    "Die Übertragung ist Ende-zu-Ende verschlüsselt. Nach der Lieferung löschen wir Ihre Rohdaten nach 30 Tagen.":
+      { en: "Transfers are end-to-end encrypted. We delete your raw data 30 days after delivery.",
+        es: "La transferencia está cifrada de extremo a extremo. Eliminamos sus datos brutos 30 días después de la entrega." },
+    "Ausgabe": { en: "Output", es: "Salida" },
+    "PDF/A · Plansatz": { en: "PDF/A · drawing set", es: "PDF/A · juego de planos" },
+    "Detailgrad Modell": { en: "Model detail", es: "Nivel de detalle" },
+    "Wände, Decken, Öffnungen": { en: "Walls, slabs, openings", es: "Muros, forjados, huecos" },
+    "+ Treppen, Stützen, Laibungen": { en: "+ stairs, columns, reveals", es: "+ escaleras, pilares, jambas" },
+    "Planmaßstab": { en: "Drawing scale", es: "Escala del plano" },
+    "Werkplanung": { en: "Construction drawings", es: "Proyecto de ejecución" },
+    "Entwurf, Bestand": { en: "Design, as-built", es: "Anteproyecto, estado actual" },
+    "Fläche (BGF, geschätzt)": { en: "Floor area (GFA, estimate)", es: "Superficie (construida, estimada)" },
+    "Festpreis netto": { en: "Fixed price, excl. VAT", es: "Precio fijo sin IVA" },
+    "Auftrag starten": { en: "Start order", es: "Iniciar pedido" },
+    "Upload": { en: "Upload", es: "Carga" },
+    "Prüfung der Punktwolke": { en: "Point cloud check", es: "Revisión de la nube" },
+    "Dichte, Lücken": { en: "density, gaps", es: "densidad, huecos" },
+    "Modellierung": { en: "Modelling", es: "Modelado" },
+    "Qualitätskontrolle": { en: "Quality control", es: "Control de calidad" },
+    "Soll / Ist": { en: "target / actual", es: "previsto / real" },
+    "Modell.ifc": { en: "Model.ifc", es: "Modelo.ifc" },
+    "Grundriss.dwg": { en: "FloorPlan.dwg", es: "Planta.dwg" },
+    "Plansatz.pdf": { en: "Drawings.pdf", es: "Planos.pdf" },
+    "6 Blatt": { en: "6 sheets", es: "6 hojas" },
+    "Demo-Modus: Es wird nichts hochgeladen. Echte Aufträge dauern bis zu 48 Stunden, Sie erhalten dann eine E-Mail.":
+      { en: "Demo mode: nothing is uploaded. Real orders take up to 48 hours and you get an email when they are ready.",
+        es: "Modo demo: no se sube nada. Los pedidos reales tardan hasta 48 horas y recibirá un correo cuando estén listos." },
+    "Neuen Auftrag anlegen": { en: "New order", es: "Nuevo pedido" },
+    "Vier Schritte. Sie erledigen den ersten.": { en: "Four steps. You do the first one.", es: "Cuatro pasos. Usted hace el primero." },
+    "Exportieren Sie die registrierte Punktwolke aus Ihrer Scan-Software als .ply oder .obj.":
+      { en: "Export the registered point cloud from your scanning software as .ply or .obj.",
+        es: "Exporte la nube de puntos registrada desde su software de escaneo en .ply u .obj." },
+    "Sie · 5 min": { en: "You · 5 min", es: "Usted · 5 min" },
+    "Prüfen": { en: "Check", es: "Revisar" },
+    "Wir prüfen Dichte, Registrierung und Abdeckung und melden Lücken, bevor modelliert wird.":
+      { en: "We check density, registration and coverage, and report gaps before modelling starts.",
+        es: "Revisamos densidad, registro y cobertura, y avisamos de huecos antes de modelar." },
+    "Modellieren": { en: "Model", es: "Modelar" },
+    "Wände, Decken, Öffnungen und Treppen entstehen als echte Bauteile, nicht als Netz.":
+      { en: "Walls, slabs, openings and stairs are built as real elements, not as a mesh.",
+        es: "Muros, forjados, huecos y escaleras se crean como elementos reales, no como malla." },
+    "points2plans · 1–2 Tage": { en: "points2plans · 1–2 days", es: "points2plans · 1–2 días" },
+    "Herunterladen": { en: "Download", es: "Descargar" },
+    "IFC, DWG und PDF stehen bereit, dazu ein Raumbuch mit Flächen als CSV.":
+      { en: "IFC, DWG and PDF are ready, plus a room schedule with areas as CSV.",
+        es: "IFC, DWG y PDF listos, junto con un cuadro de superficies en CSV." },
+    "Sie · 1 Klick": { en: "You · 1 click", es: "Usted · 1 clic" },
+    "Was Sie bekommen.": { en: "What you get.", es: "Lo que recibe." },
+    "Axonometrie": { en: "Axonometric", es: "Axonometría" },
+    "Ein BIM-Modell mit Bauteilklassen, Geschossen und Räumen. Öffnet in Revit, Archicad, Vectorworks und jedem IFC-Viewer.":
+      { en: "A BIM model with element classes, storeys and spaces. Opens in Revit, Archicad, Vectorworks and any IFC viewer.",
+        es: "Un modelo BIM con clases de elementos, plantas y espacios. Se abre en Revit, Archicad, Vectorworks y cualquier visor IFC." },
+    "7,00": { en: "7.00", es: "7,00" },
+    "Wohnen 31,4 m²": { en: "Living 31.4 m²", es: "Salón 31,4 m²" },
+    "Schlafen 18,0 m²": { en: "Bedroom 18.0 m²", es: "Dormitorio 18,0 m²" },
+    "Grundrisse, Schnitte und Ansichten auf sauberen Layern nach DIN 1356. Wände als Polylinien, Bemaßung als echte Maßketten.":
+      { en: "Plans, sections and elevations on clean layers. Walls as polylines, dimensions as real dimension chains.",
+        es: "Plantas, secciones y alzados en capas ordenadas. Muros como polilíneas, cotas como cadenas de cotas reales." },
+    "Plansatz": { en: "Drawing set", es: "Juego de planos" },
+    "Grundriss 3. OG": { en: "Plan 3rd floor", es: "Planta 3.ª" },
+    "M 1:50": { en: "Scale 1:50", es: "E 1:50" },
+    "Blatt 01": { en: "Sheet 01", es: "Hoja 01" },
+    "Druckfertige Pläne mit Schriftfeld, Nordpfeil und Maßstab. Für Bauantrag, Exposé und alle, die keine CAD-Software haben.":
+      { en: "Print-ready drawings with title block, north arrow and scale. For planning applications, listings and anyone without CAD software.",
+        es: "Planos listos para imprimir con cajetín, flecha norte y escala. Para licencias, anuncios inmobiliarios y quien no tenga software CAD." },
+    "Ein Preis pro Quadratmeter. Keine Angebote, kein Warten.": { en: "One price per square metre. No quotes, no waiting.", es: "Un precio por metro cuadrado. Sin presupuestos, sin esperas." },
+    "Leistung": { en: "Service", es: "Servicio" },
+    "Lieferung": { en: "Delivery", es: "Entrega" },
+    "pro m² BGF": { en: "per m² GFA", es: "por m² construido" },
+    "PDF-Plansatz": { en: "PDF drawing set", es: "Juego de planos PDF" },
+    "Grundrisse, 1:50 oder 1:100": { en: "Floor plans, 1:50 or 1:100", es: "Plantas, 1:50 o 1:100" },
+    "0,60 €": { en: "€0.60", es: "0,60 €" },
+    "Grundrisse, Schnitte, Ansichten": { en: "Plans, sections, elevations", es: "Plantas, secciones, alzados" },
+    "0,80 €": { en: "€0.80", es: "0,80 €" },
+    "1,60 €": { en: "€1.60", es: "1,60 €" },
+    "zusätzlich Treppen, Stützen, Laibungen": { en: "plus stairs, columns, reveals", es: "además escaleras, pilares, jambas" },
+    "2,40 €": { en: "€2.40", es: "2,40 €" },
+    "Mindestauftrag 190 € netto. Alle Preise zzgl. MwSt.": { en: "Minimum order €190. All prices excl. VAT.", es: "Pedido mínimo 190 €. Todos los precios sin IVA." },
+    "Eingangsformate": { en: "Input formats", es: "Formatos de entrada" },
+    "Max. Dateigröße": { en: "Max. file size", es: "Tamaño máx." },
+    "Min. Punktdichte": { en: "Min. point density", es: "Densidad mín." },
+    "1 Pkt / 5 mm": { en: "1 pt / 5 mm", es: "1 pto / 5 mm" },
+    "Modellgenauigkeit": { en: "Model accuracy", es: "Precisión del modelo" },
+    "Koordinatensystem": { en: "Coordinate system", es: "Sistema de coordenadas" },
+    "lokal · ETRS89 / UTM": { en: "local · ETRS89 / UTM", es: "local · ETRS89 / UTM" },
+    "Raumbuch": { en: "Room schedule", es: "Cuadro de superficies" },
+    "Datenhaltung": { en: "Data storage", es: "Almacenamiento" },
+    "Frankfurt · DSGVO": { en: "Frankfurt · GDPR", es: "Fráncfort · RGPD" },
+    "Ihr Scan ist fertig. Der Plan in zwei Tagen.": { en: "Your scan is done. Your plans follow in two days.", es: "Su escaneo está listo. Sus planos, en dos días." },
+    "Impressum": { en: "Legal notice", es: "Aviso legal" },
+    "Datenschutz": { en: "Privacy", es: "Privacidad" },
+    /* aria-labels */
+    "Hauptnavigation": { en: "Main navigation", es: "Navegación principal" },
+    "points2plans Startseite": { en: "points2plans home", es: "Inicio points2plans" },
+    "Animierte Punktwolke einer Wohnung, die sich in einen Grundriss und ein BIM-Modell verwandelt":
+      { en: "Animated point cloud of a flat that turns into a floor plan and a BIM model",
+        es: "Nube de puntos animada de una vivienda que se convierte en planta y en modelo BIM" },
+    "Ansicht wählen": { en: "Choose view", es: "Elegir vista" },
+    "Axonometrische Darstellung eines BIM-Modells": { en: "Axonometric view of a BIM model", es: "Vista axonométrica de un modelo BIM" },
+    "Grundriss mit Wänden und Türen": { en: "Floor plan with walls and doors", es: "Planta con muros y puertas" },
+    "PDF-Planblatt mit Schriftfeld": { en: "PDF drawing sheet with title block", es: "Hoja de plano PDF con cajetín" },
+    "Sprache": { en: "Language", es: "Idioma" }
+  },
+
+  /* Texte, die per JavaScript erzeugt werden */
+  dyn: {
+    de: {
+      locale: "de-DE",
+      rooms: ["Wohnen", "Schlafen", "Flur", "Bad", "Küche", "Arbeiten"],
+      ro: { cloud: ["Eingang · .ply", "2.418.930 Punkte · ±4 mm"], plan: ["Ausgabe · .dwg / .pdf", "Grundriss 1:50 · 140,0 m² BGF"], bim: ["Ausgabe · .ifc"] },
+      sampleMeta: " · 2.418.930 Punkte · Beispieldatei",
+      ready: " · bereit",
+      errFormat: n => `„${n}“ ist keine .ply- oder .obj-Datei. Exportieren Sie die Punktwolke bitte in einem dieser Formate.`,
+      errSize: "Die Datei ist größer als 20 GB. Teilen Sie den Scan nach Geschossen auf.",
+      chooseFormat: "Format wählen",
+      dueBy: "Lieferung bis ",
+      order: "Auftrag",
+      done: " · fertig",
+      notConnected: "Upload ist noch nicht angebunden.",
+      demoFile: f => `Demo-Modus: keine echte ${f}-Datei vorhanden.`
+    },
+    en: {
+      locale: "en-GB",
+      rooms: ["Living", "Bedroom", "Hall", "Bath", "Kitchen", "Study"],
+      ro: { cloud: ["Input · .ply", "2,418,930 points · ±4 mm"], plan: ["Output · .dwg / .pdf", "Floor plan 1:50 · 140.0 m² GFA"], bim: ["Output · .ifc"] },
+      sampleMeta: " · 2,418,930 points · sample file",
+      ready: " · ready",
+      errFormat: n => `“${n}” is not a .ply or .obj file. Please export the point cloud in one of these formats.`,
+      errSize: "The file is larger than 20 GB. Split the scan by floor.",
+      chooseFormat: "Choose a format",
+      dueBy: "Delivered by ",
+      order: "Order",
+      done: " · done",
+      notConnected: "Upload is not connected yet.",
+      demoFile: f => `Demo mode: there is no real ${f} file.`
+    },
+    es: {
+      locale: "es-ES",
+      rooms: ["Salón", "Dormitorio", "Pasillo", "Baño", "Cocina", "Estudio"],
+      ro: { cloud: ["Entrada · .ply", "2.418.930 puntos · ±4 mm"], plan: ["Salida · .dwg / .pdf", "Planta 1:50 · 140,0 m² construidos"], bim: ["Salida · .ifc"] },
+      sampleMeta: " · 2.418.930 puntos · archivo de ejemplo",
+      ready: " · listo",
+      errFormat: n => `«${n}» no es un archivo .ply u .obj. Exporte la nube de puntos en uno de estos formatos.`,
+      errSize: "El archivo supera los 20 GB. Divida el escaneo por plantas.",
+      chooseFormat: "Elija un formato",
+      dueBy: "Entrega el ",
+      order: "Pedido",
+      done: " · listo",
+      notConnected: "La subida aún no está conectada.",
+      demoFile: f => `Modo demo: no hay un archivo ${f} real.`
+    }
+  }
+};

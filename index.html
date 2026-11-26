@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>points2plans · Punktwolke zu Grundriss und BIM</title>
+<meta name="description" content="Punktwolke als .ply oder .obj hochladen, nach 48 Stunden IFC-Modell, DWG und PDF-Plansatz herunterladen. Festpreis pro Quadratmeter.">
+<meta name="theme-color" content="#ECEDEA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111316" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="points2plans">
+<meta property="og:description" content="Aus Punkten werden Pläne. Punktwolke hochladen, IFC, DWG oder PDF herunterladen.">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://points2plans.com/">
+<link rel="alternate" hreflang="de" href="https://points2plans.com/">
+<link rel="alternate" hreflang="en" href="https://points2plans.com/?lang=en">
+<link rel="alternate" hreflang="es" href="https://points2plans.com/?lang=es">
+<link rel="alternate" hreflang="x-default" href="https://points2plans.com/">
+<meta property="og:url" content="https://points2plans.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,200..800&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one calm column on a 12-track grid; the point cloud is the only loud object, everything else is set like a plan sheet (Schriftfeld, Maßstab, Koordinaten). */
+:root{
+  --paper:#ECEDEA;
+  --surface:#F6F6F4;
+  --ink:#14161A;
+  --mute:#686C71;
+  --rule:#CBCEC9;
+  --accent:#2E3AE6;
+  --accent-soft:rgba(46,58,230,.09);
+  --on-accent:#FFFFFF;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Inter Tight","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --s-1:.75rem; --s0:1rem; --s1:1.25rem; --s2:1.75rem; --s3:2.5rem; --s4:4rem; --s5:6.5rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111316; --surface:#181B1F; --ink:#E8E9E5; --mute:#8E9398; --rule:#2B2F35;
+    --accent:#818AFF; --accent-soft:rgba(129,138,255,.13); --on-accent:#0D0F12; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111316; --surface:#181B1F; --ink:#E8E9E5; --mute:#8E9398; --rule:#2B2F35;
+  --accent:#818AFF; --accent-soft:rgba(129,138,255,.13); --on-accent:#0D0F12; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--f-body); font-size:1rem; line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1320px; margin:0 auto}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+.mono{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.02em; font-variant-numeric:tabular-nums}
+.label{font-family:var(--f-mono); font-size:.6875rem; text-transform:uppercase; letter-spacing:.12em; color:var(--mute)}
+
+/* ---------- Nav ---------- */
+.nav{display:flex; align-items:center; justify-content:space-between; gap:var(--s1); padding-block:var(--s1)}
+.logo{display:flex; align-items:center; gap:.6rem; text-decoration:none; font-family:var(--f-display); font-variation-settings:"wdth" 118; font-weight:600; font-size:1.1rem; letter-spacing:-.01em}
+.logo svg{width:22px; height:22px}
+.logo b{font-weight:600; color:var(--accent)}
+.nav ul{display:flex; gap:var(--s2); list-style:none; margin:0; padding:0}
+.nav ul a{text-decoration:none; font-size:.875rem; color:var(--mute)}
+.nav ul a:hover{color:var(--ink)}
+.btn{
+  display:inline-flex; align-items:center; gap:.55rem; cursor:pointer;
+  font:500 .875rem/1 var(--f-body); text-decoration:none;
+  padding:.85rem 1.2rem; border-radius:999px; border:1px solid var(--ink);
+  background:var(--ink); color:var(--paper); transition:transform .2s ease, background .2s ease, color .2s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--ink)}
+.btn.ghost:hover{background:var(--ink); color:var(--paper)}
+.btn.accent{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.btn[disabled]{opacity:.45; cursor:not-allowed; transform:none}
+.btn svg{width:14px; height:14px}
+.nav-r{display:flex; align-items:center; gap:var(--s0)}
+.lang{display:flex; gap:2px}
+.lang button{font:500 .6875rem/1 var(--f-mono); letter-spacing:.08em; color:var(--mute); background:none; border:0; padding:.5rem .4rem; cursor:pointer; border-radius:3px}
+.lang button:hover{color:var(--ink)}
+.lang button[aria-pressed="true"]{color:var(--ink); box-shadow:inset 0 -1.5px 0 var(--accent)}
+@media (max-width:760px){ .nav ul{display:none} }
+@media (max-width:420px){ .nav-r .btn{padding:.75rem .9rem} }
+
+/* ---------- Hero ---------- */
+.hero{padding-block:var(--s4) var(--s3); display:grid; grid-template-columns:repeat(12,1fr); gap:var(--s2) var(--s1); align-items:end}
+.hero .eyebrow{grid-column:1/-1}
+.hero h1{
+  grid-column:1/9; margin:0;
+  font-family:var(--f-display); font-weight:250; font-variation-settings:"wdth" 125;
+  font-size:clamp(2.9rem, 8.2vw, 8.4rem); line-height:.92; letter-spacing:-.045em; text-wrap:balance;
+}
+.hero h1 em{font-style:normal; font-weight:600; font-variation-settings:"wdth" 62; letter-spacing:-.02em}
+.hero h1 .dot{color:var(--accent)}
+.hero .lede{grid-column:9/-1; display:flex; flex-direction:column; gap:var(--s1); padding-bottom:.6rem; min-width:0}
+.hero .lede p{margin:0; font-size:1.0625rem; max-width:34ch}
+.hero .ctas{display:flex; flex-wrap:wrap; gap:.6rem}
+@media (max-width:980px){ .hero h1,.hero .lede{grid-column:1/-1} .hero{padding-block:var(--s3) var(--s2)} }
+
+/* ---------- Viewer ---------- */
+.viewer{position:relative; aspect-ratio:16/9; max-width:100%; background:var(--surface); touch-action:pan-y; cursor:grab; user-select:none}
+.viewer:active{cursor:grabbing}
+.viewer canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+.crop{position:absolute; width:14px; height:14px; border-color:var(--ink); border-style:solid; border-width:0; pointer-events:none}
+.crop.tl{top:10px; left:10px; border-top-width:1px; border-left-width:1px}
+.crop.tr{top:10px; right:10px; border-top-width:1px; border-right-width:1px}
+.crop.bl{bottom:10px; left:10px; border-bottom-width:1px; border-left-width:1px}
+.crop.br{bottom:10px; right:10px; border-bottom-width:1px; border-right-width:1px}
+.modes{position:absolute; top:var(--s1); left:var(--s1); display:flex; gap:2px; padding:3px; background:var(--paper); border-radius:999px; border:1px solid var(--rule)}
+.modes button{
+  font:500 .8125rem/1 var(--f-body); color:var(--mute); background:transparent; border:0; cursor:pointer;
+  padding:.6rem .95rem; border-radius:999px; transition:background .25s, color .25s; white-space:nowrap;
+}
+.modes button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
+.readout{position:absolute; left:var(--s1); bottom:var(--s1); display:flex; flex-direction:column; gap:.2rem; pointer-events:none}
+.readout .big{font-family:var(--f-display); font-variation-settings:"wdth" 110; font-weight:500; font-size:1.05rem; letter-spacing:-.01em}
+.coords{position:absolute; right:var(--s1); bottom:var(--s1); text-align:right; color:var(--mute); pointer-events:none; line-height:1.6}
+.hint{position:absolute; right:var(--s1); top:calc(var(--s1) + .55rem); color:var(--mute); pointer-events:none}
+@media (max-width:700px){
+  .viewer{aspect-ratio:4/5}
+  .coords{display:none}
+  .hint{display:none}
+  .modes{left:50%; transform:translateX(-50%); top:var(--s0)}
+  .modes button{padding:.55rem .65rem; font-size:.75rem}
+}
+
+/* ---------- Strip of facts ---------- */
+.facts{display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--ink); margin-top:var(--s3)}
+.facts div{padding:var(--s1) var(--s1) var(--s1) 0; display:flex; flex-direction:column; gap:.35rem; min-width:0}
+.facts div + div{padding-left:var(--s1); border-left:1px solid var(--rule)}
+.facts strong{font-family:var(--f-display); font-variation-settings:"wdth" 118; font-weight:400; font-size:clamp(1.5rem,2.6vw,2.2rem); letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  .facts{grid-template-columns:1fr 1fr}
+  .facts div:nth-child(3){padding-left:0; border-left:0}
+  .facts div:nth-child(n+3){border-top:1px solid var(--rule)}
+}
+
+/* ---------- Sections ---------- */
+section{padding-block:var(--s5) 0}
+.sec-head{display:grid; grid-template-columns:repeat(12,1fr); gap:var(--s1); align-items:end; margin-bottom:var(--s3)}
+.sec-head .label{grid-column:1/4; padding-bottom:.5rem}
+.sec-head h2{
+  grid-column:4/11; margin:0; font-family:var(--f-display); font-weight:300; font-variation-settings:"wdth" 120;
+  font-size:clamp(2rem,4.6vw,3.8rem); line-height:1; letter-spacing:-.04em; text-wrap:balance;
+}
+@media (max-width:860px){ .sec-head .label,.sec-head h2{grid-column:1/-1} }
+
+/* ---------- Upload ---------- */
+.order{display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); background:var(--surface)}
+.drop{position:relative; padding:var(--s3); border-right:1px solid var(--rule); display:flex; flex-direction:column; gap:var(--s2); min-width:0}
+.zone{
+  position:relative; border:1.5px dashed var(--rule); border-radius:4px; min-height:260px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--s0); text-align:center; padding:var(--s2);
+  transition:border-color .2s, background .2s; cursor:pointer;
+}
+.zone:hover,.zone.over{border-color:var(--accent); background:var(--accent-soft)}
+.zone input{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%}
+.zone .ico{width:64px; height:64px}
+.zone h3{margin:0; font-family:var(--f-display); font-variation-settings:"wdth" 115; font-weight:400; font-size:1.5rem; letter-spacing:-.02em}
+.zone p{margin:0; color:var(--mute); font-size:.9rem}
+.chips{display:flex; gap:.4rem; flex-wrap:wrap; justify-content:center}
+.chip{font-family:var(--f-mono); font-size:.6875rem; letter-spacing:.06em; padding:.3rem .55rem; border:1px solid var(--rule); border-radius:999px; color:var(--ink)}
+.file{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:var(--s0); align-items:center; padding-block:var(--s0); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule)}
+.file .sq{width:42px; height:42px; display:grid; place-items:center; background:var(--ink); color:var(--paper); font-family:var(--f-mono); font-size:.65rem; letter-spacing:.06em; border-radius:2px}
+.file .nm{font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.file .meta{color:var(--mute)}
+.file button{background:none; border:0; color:var(--mute); cursor:pointer; font:inherit; font-size:.8125rem; text-decoration:underline; text-underline-offset:3px}
+.err{color:#C4321F; font-size:.875rem; margin:0}
+:root[data-theme="dark"] .err{color:#FF7A66}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .err{color:#FF7A66} }
+.example-tag{position:absolute; top:var(--s1); right:var(--s1)}
+
+.cfg{padding:var(--s3); display:flex; flex-direction:column; gap:var(--s2); min-width:0}
+fieldset{border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:.65rem; min-width:0}
+legend{padding:0; margin-bottom:.65rem}
+.opts{display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem}
+.opts.two{grid-template-columns:repeat(2,1fr)}
+.opt{position:relative}
+.opt input{position:absolute; opacity:0; inset:0; margin:0; cursor:pointer}
+.opt span{
+  display:flex; flex-direction:column; gap:.2rem; padding:.75rem .8rem; border:1px solid var(--rule); border-radius:4px;
+  font-weight:500; font-size:.9rem; transition:border-color .2s, background .2s; height:100%;
+}
+.opt span small{font-family:var(--f-mono); font-weight:400; font-size:.65rem; color:var(--mute); letter-spacing:.04em}
+.opt input:checked + span{border-color:var(--ink); background:var(--paper); box-shadow:inset 0 0 0 1px var(--ink)}
+.opt input:focus-visible + span{outline:2px solid var(--accent); outline-offset:2px}
+.area{display:flex; align-items:center; gap:.6rem}
+.area input{
+  width:7.5rem; font:500 1.1rem var(--f-mono); padding:.6rem .7rem; border:1px solid var(--rule); border-radius:4px;
+  background:var(--paper); color:var(--ink); font-variant-numeric:tabular-nums;
+}
+.area input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+.sum{border-top:1px solid var(--ink); padding-top:var(--s1); display:flex; flex-direction:column; gap:var(--s1)}
+.sum-row{display:flex; justify-content:space-between; align-items:baseline; gap:var(--s0)}
+.price{font-family:var(--f-display); font-variation-settings:"wdth" 115; font-weight:400; font-size:2.6rem; letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums}
+.sum .btn{justify-content:center; padding-block:1.05rem; font-size:.95rem}
+
+.status{display:flex; flex-direction:column; gap:var(--s1)}
+.bar{height:3px; background:var(--rule); overflow:hidden}
+.bar i{display:block; height:100%; width:0; background:var(--accent); transition:width .25s linear}
+.steps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.steps li{display:grid; grid-template-columns:1.4rem minmax(0,1fr) auto; gap:.7rem; align-items:center; padding-block:.7rem; border-bottom:1px solid var(--rule); color:var(--mute)}
+.steps li .tick{width:14px; height:14px; border-radius:50%; border:1px solid var(--rule)}
+.steps li.on{color:var(--ink)}
+.steps li.on .tick{border-color:var(--accent); background:radial-gradient(circle, var(--accent) 0 3px, transparent 3.5px)}
+.steps li.done{color:var(--ink)}
+.steps li.done .tick{border-color:var(--ink); background:var(--ink)}
+.dl{display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem}
+.dl button{
+  font:500 .85rem var(--f-body); padding:.85rem .5rem; border:1px solid var(--ink); background:transparent; color:var(--ink); border-radius:4px; cursor:pointer;
+  display:flex; flex-direction:column; gap:.15rem; align-items:flex-start;
+}
+.dl button small{font-family:var(--f-mono); font-size:.62rem; color:var(--mute)}
+.dl button:hover{background:var(--ink); color:var(--paper)}
+.dl button:hover small{color:var(--paper)}
+.note{font-size:.8125rem; color:var(--mute); margin:0}
+@media (max-width:900px){
+  .order{grid-template-columns:1fr}
+  .drop{border-right:0; border-bottom:1px solid var(--rule)}
+  .drop,.cfg{padding:var(--s2) var(--s1)}
+}
+@media (max-width:420px){ .opts{grid-template-columns:1fr 1fr} .dl{grid-template-columns:1fr} }
+
+/* ---------- Process ---------- */
+.process{display:grid; grid-template-columns:repeat(4,1fr); gap:0}
+.process li{list-style:none; padding:var(--s1) var(--s1) var(--s2) 0; border-top:1px solid var(--ink); display:flex; flex-direction:column; gap:.6rem; min-width:0}
+.process li + li{padding-left:var(--s1)}
+.process ol{margin:0; padding:0}
+.process .n{font-family:var(--f-mono); font-size:.75rem; color:var(--accent)}
+.process h3{margin:0; font-family:var(--f-display); font-variation-settings:"wdth" 115; font-weight:500; font-size:1.35rem; letter-spacing:-.02em}
+.process p{margin:0; color:var(--mute); font-size:.9375rem; max-width:30ch}
+.process .t{margin-top:auto; padding-top:var(--s0)}
+@media (max-width:860px){ .process{grid-template-columns:1fr 1fr} .process li:nth-child(3){padding-left:0} }
+@media (max-width:480px){ .process{grid-template-columns:1fr} .process li + li{padding-left:0} }
+
+/* ---------- Formats ---------- */
+.formats{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s1)}
+.fmt{display:flex; flex-direction:column; gap:var(--s0); min-width:0}
+.fmt .art{aspect-ratio:4/3; max-width:100%; background:var(--surface); display:grid; place-items:center; padding:var(--s2); position:relative}
+.fmt .art svg{width:100%; height:100%}
+.fmt .art .label{position:absolute; top:var(--s0); left:var(--s0)}
+.fmt h3{margin:0; display:flex; align-items:baseline; justify-content:space-between; gap:var(--s0); font-family:var(--f-display); font-variation-settings:"wdth" 120; font-weight:400; font-size:1.9rem; letter-spacing:-.03em}
+.fmt h3 .mono{color:var(--mute); font-size:.7rem}
+.fmt p{margin:0; color:var(--mute); font-size:.9375rem; max-width:42ch}
+.svg-ink{stroke:var(--ink); fill:none}
+.svg-fill{fill:var(--ink)}
+.svg-acc{stroke:var(--accent); fill:none}
+.svg-accfill{fill:var(--accent-soft); stroke:var(--accent)}
+.svg-mute{stroke:var(--mute); fill:none}
+.svg-text{fill:var(--mute); font-family:var(--f-mono); font-size:7px; letter-spacing:.04em}
+.svg-paper{fill:var(--paper)}
+@media (max-width:860px){ .formats{grid-template-columns:1fr} }
+
+/* ---------- Pricing + specs ---------- */
+.split{display:grid; grid-template-columns:minmax(0,7fr) minmax(0,5fr); gap:var(--s4)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+th,td{text-align:left; padding:1.05rem .5rem 1.05rem 0; border-bottom:1px solid var(--rule); vertical-align:baseline}
+thead th{border-bottom:1px solid var(--ink)}
+td.p{font-family:var(--f-display); font-variation-settings:"wdth" 115; font-size:1.5rem; letter-spacing:-.03em; white-space:nowrap; text-align:right; padding-right:0}
+th:last-child{text-align:right; padding-right:0}
+td .sub{display:block; color:var(--mute); font-size:.85rem}
+td strong{font-weight:500}
+dl.spec{margin:0; display:grid; grid-template-columns:auto 1fr; gap:0}
+dl.spec dt,dl.spec dd{padding-block:.8rem; border-bottom:1px solid var(--rule); margin:0}
+dl.spec dt{padding-right:var(--s1)}
+dl.spec dd{text-align:right; font-family:var(--f-mono); font-size:.8rem}
+@media (max-width:900px){ .split{grid-template-columns:1fr; gap:var(--s3)} }
+
+/* ---------- Closing + footer ---------- */
+.closing{padding-block:var(--s5) var(--s4); display:grid; grid-template-columns:repeat(12,1fr); gap:var(--s2) var(--s1); align-items:end}
+.closing h2{grid-column:1/10; margin:0; font-family:var(--f-display); font-weight:250; font-variation-settings:"wdth" 125; font-size:clamp(2.4rem,6.4vw,6rem); line-height:.95; letter-spacing:-.045em; text-wrap:balance}
+.closing .btn{grid-column:10/-1; justify-self:end}
+@media (max-width:860px){ .closing h2,.closing .btn{grid-column:1/-1; justify-self:start} }
+footer{border-top:1px solid var(--ink); padding-block:var(--s1) var(--s3); display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3); justify-content:space-between; color:var(--mute)}
+footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
+
+.toast{
+  position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom, 0px)); transform:translate(-50%, 20px); opacity:0;
+  background:var(--ink); color:var(--paper); padding:.75rem 1.1rem; border-radius:999px; font-size:.875rem; pointer-events:none;
+  transition:opacity .25s, transform .25s; max-width:calc(100% - 32px); text-align:center; z-index:20;
+}
+.toast.show{opacity:1; transform:translate(-50%, 0)}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} .btn:hover{transform:none} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav class="nav" aria-label="Hauptnavigation">
+    <a class="logo" href="#top" aria-label="points2plans Startseite">
+      <svg viewBox="0 0 22 22" aria-hidden="true">
+        <g fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="8" cy="3" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2" opacity=".5"/><circle cx="13" cy="3" r="1.2" opacity=".5"/><circle cx="3" cy="13" r="1.2" opacity=".5"/></g>
+        <path d="M11 11h10v10H11z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      </svg>
+      <span>points<b>2</b>plans</span>
+    </a>
+    <ul>
+      <li><a href="#ablauf">Ablauf</a></li>
+      <li><a href="#formate">Formate</a></li>
+      <li><a href="#preise">Preise</a></li>
+    </ul>
+    <div class="nav-r">
+    <div class="lang" role="group" aria-label="Sprache">
+      <button type="button" data-lang="de" aria-pressed="true">DE</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+    <a class="btn" href="#upload">Hochladen
+      <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 11V3M3.5 6.5 7 3l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    </a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <span class="eyebrow label">Scan-to-Plan &nbsp;/&nbsp; Scan-to-BIM</span>
+    <h1>Aus <em>Punkten</em> werden Pläne<span class="dot">.</span></h1>
+    <div class="lede">
+      <p>Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen IFC-Modell, DWG und PDF-Plansatz zum Download bereit.</p>
+      <div class="ctas">
+        <a class="btn accent" href="#upload">Punktwolke hochladen</a>
+        <a class="btn ghost" href="#formate">Beispiele ansehen</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="viewer" id="viewer">
+    <canvas id="cv" aria-label="Animierte Punktwolke einer Wohnung, die sich in einen Grundriss und ein BIM-Modell verwandelt" role="img"></canvas>
+    <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
+    <div class="modes" role="group" aria-label="Ansicht wählen">
+      <button type="button" data-mode="cloud" aria-pressed="true">Punktwolke</button>
+      <button type="button" data-mode="plan" aria-pressed="false">Grundriss</button>
+      <button type="button" data-mode="bim" aria-pressed="false">BIM</button>
+    </div>
+    <span class="hint mono">Ziehen zum Drehen</span>
+    <div class="readout">
+      <span class="label" id="ro-k">Eingang · .ply</span>
+      <span class="big" id="ro-v">2.418.930 Punkte · ±4 mm</span>
+    </div>
+    <div class="coords mono" id="coords">Altbau, 3. OG · Berlin-Prenzlauer Berg<br>Station 03 · X 4.500 · Y 3.000 · Z 1.500</div>
+  </div>
+
+  <div class="facts">
+    <div><span class="label">Lieferzeit</span><strong>48 h</strong></div>
+    <div><span class="label">Genauigkeit</span><strong>±10 mm</strong></div>
+    <div><span class="label">Ab</span><strong>0,60 €/m²</strong></div>
+    <div><span class="label">Rechenzentrum</span><strong>Frankfurt</strong></div>
+  </div>
+
+  <!-- Upload -->
+  <section id="upload">
+    <div class="sec-head">
+      <span class="label">Auftrag</span>
+      <h2>Eine Datei hochladen, drei Formate zurückbekommen.</h2>
+    </div>
+
+    <div class="order">
+      <div class="drop">
+        <label class="zone" id="zone" for="file-in">
+          <input type="file" id="file-in" accept=".ply,.obj">
+          <svg class="ico" viewBox="0 0 64 64" aria-hidden="true">
+            <g class="svg-fill" opacity=".85">
+              <circle cx="14" cy="40" r="1.3"/><circle cx="20" cy="36" r="1.3"/><circle cx="26" cy="33" r="1.3"/><circle cx="32" cy="30" r="1.3"/><circle cx="38" cy="33" r="1.3"/><circle cx="44" cy="36" r="1.3"/><circle cx="50" cy="40" r="1.3"/>
+              <circle cx="14" cy="47" r="1.3" opacity=".5"/><circle cx="20" cy="43" r="1.3" opacity=".5"/><circle cx="44" cy="43" r="1.3" opacity=".5"/><circle cx="50" cy="47" r="1.3" opacity=".5"/>
+              <circle cx="26" cy="40" r="1.3" opacity=".35"/><circle cx="38" cy="40" r="1.3" opacity=".35"/><circle cx="32" cy="44" r="1.3" opacity=".35"/>
+            </g>
+            <path d="M32 24V6M25 13l7-7 7 7" class="svg-acc" stroke-width="2"/>
+          </svg>
+          <h3>Punktwolke hier ablegen</h3>
+          <p>oder klicken, um eine Datei auszuwählen</p>
+          <div class="chips"><span class="chip">.PLY</span><span class="chip">.OBJ</span><span class="chip">bis 20 GB</span></div>
+        </label>
+
+        <div class="file" id="file-row">
+          <div class="sq" id="file-ext">PLY</div>
+          <div style="min-width:0">
+            <div class="nm" id="file-name">Altbau_3OG_Gesamt.ply</div>
+            <div class="meta mono" id="file-meta">412,6 MB · 2.418.930 Punkte · Beispieldatei</div>
+          </div>
+          <button type="button" id="file-clear">Entfernen</button>
+        </div>
+        <p class="err" id="file-err" hidden></p>
+        <p class="note">Die Übertragung ist Ende-zu-Ende verschlüsselt. Nach der Lieferung löschen wir Ihre Rohdaten nach 30 Tagen.</p>
+      </div>
+
+      <form class="cfg" id="cfg" novalidate>
+        <fieldset>
+          <legend class="label">Ausgabe</legend>
+          <div class="opts">
+            <label class="opt"><input type="checkbox" id="o-ifc" name="out" value="ifc" checked><span>IFC<small>IFC 4 · BIM</small></span></label>
+            <label class="opt"><input type="checkbox" id="o-dwg" name="out" value="dwg" checked><span>DWG<small>2018 · 2D</small></span></label>
+            <label class="opt"><input type="checkbox" id="o-pdf" name="out" value="pdf" checked><span>PDF<small>PDF/A · Plansatz</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset id="lod-set">
+          <legend class="label">Detailgrad Modell</legend>
+          <div class="opts two">
+            <label class="opt"><input type="radio" id="lod-200" name="lod" value="200"><span>LOD 200<small>Wände, Decken, Öffnungen</small></span></label>
+            <label class="opt"><input type="radio" id="lod-300" name="lod" value="300" checked><span>LOD 300<small>+ Treppen, Stützen, Laibungen</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="label">Planmaßstab</legend>
+          <div class="opts two">
+            <label class="opt"><input type="radio" id="sc-50" name="scale" value="50" checked><span>1:50<small>Werkplanung</small></span></label>
+            <label class="opt"><input type="radio" id="sc-100" name="scale" value="100"><span>1:100<small>Entwurf, Bestand</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend class="label"><label for="area-in">Fläche (BGF, geschätzt)</label></legend>
+          <div class="area"><input type="number" id="area-in" min="10" max="50000" step="10" value="140" inputmode="numeric"><span>m²</span></div>
+        </fieldset>
+
+        <div class="sum" id="sum">
+          <div class="sum-row">
+            <span class="label">Festpreis netto</span>
+            <span class="label" id="due">Lieferung bis Mo, 30.11.</span>
+          </div>
+          <div class="sum-row">
+            <span class="price" id="price">532 €</span>
+            <span class="mono" id="rate" style="color:var(--mute)">3,80 €/m²</span>
+          </div>
+          <button class="btn" type="submit" id="go">Auftrag starten</button>
+        </div>
+
+        <div class="status" id="status" hidden>
+          <div class="sum-row"><span class="label" id="st-label">Auftrag P2P-2611-0418</span><span class="mono" id="st-pct">0 %</span></div>
+          <div class="bar"><i id="st-bar"></i></div>
+          <ol class="steps" id="steps">
+            <li><span class="tick"></span><span>Upload</span><span class="mono">412 MB</span></li>
+            <li><span class="tick"></span><span>Prüfung der Punktwolke</span><span class="mono">Dichte, Lücken</span></li>
+            <li><span class="tick"></span><span>Modellierung</span><span class="mono">LOD 300</span></li>
+            <li><span class="tick"></span><span>Qualitätskontrolle</span><span class="mono">Soll / Ist</span></li>
+          </ol>
+          <div class="dl" id="dl" hidden>
+            <button type="button" data-f="IFC"><span>Modell.ifc</span><small>18,4 MB</small></button>
+            <button type="button" data-f="DWG"><span>Grundriss.dwg</span><small>2,1 MB</small></button>
+            <button type="button" data-f="PDF"><span>Plansatz.pdf</span><small>6 Blatt</small></button>
+          </div>
+          <p class="note" id="demo-note">Demo-Modus: Es wird nichts hochgeladen. Echte Aufträge dauern bis zu 48 Stunden, Sie erhalten dann eine E-Mail.</p>
+          <button class="btn ghost" type="button" id="again" hidden>Neuen Auftrag anlegen</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section id="ablauf">
+    <div class="sec-head">
+      <span class="label">Ablauf</span>
+      <h2>Vier Schritte. Sie erledigen den ersten.</h2>
+    </div>
+    <ol class="process">
+      <li><span class="n">01</span><h3>Hochladen</h3><p>Exportieren Sie die registrierte Punktwolke aus Ihrer Scan-Software als .ply oder .obj.</p><span class="t label">Sie · 5 min</span></li>
+      <li><span class="n">02</span><h3>Prüfen</h3><p>Wir prüfen Dichte, Registrierung und Abdeckung und melden Lücken, bevor modelliert wird.</p><span class="t label">points2plans · 2 h</span></li>
+      <li><span class="n">03</span><h3>Modellieren</h3><p>Wände, Decken, Öffnungen und Treppen entstehen als echte Bauteile, nicht als Netz.</p><span class="t label">points2plans · 1–2 Tage</span></li>
+      <li><span class="n">04</span><h3>Herunterladen</h3><p>IFC, DWG und PDF stehen bereit, dazu ein Raumbuch mit Flächen als CSV.</p><span class="t label">Sie · 1 Klick</span></li>
+    </ol>
+  </section>
+
+  <!-- Formats -->
+  <section id="formate">
+    <div class="sec-head">
+      <span class="label">Formate</span>
+      <h2>Was Sie bekommen.</h2>
+    </div>
+    <div class="formats">
+      <article class="fmt">
+        <div class="art">
+          <span class="label">Axonometrie</span>
+          <svg viewBox="0 0 200 150" aria-label="Axonometrische Darstellung eines BIM-Modells">
+            <g stroke-width=".8" stroke-linejoin="round">
+              <path d="M40 92 100 122 165 90 105 60Z" class="svg-accfill" stroke-width=".6"/>
+              <path d="M40 92V52L105 20V60Z" class="svg-paper" stroke="none"/>
+              <path d="M40 92V52L105 20V60L40 92" class="svg-ink"/>
+              <path d="M105 60V20L165 50V90Z" class="svg-paper" stroke="none"/>
+              <path d="M105 60V20L165 50V90" class="svg-ink"/>
+              <path d="M58 83V65L74 57V75Z" class="svg-acc"/>
+              <path d="M82 71V53L96 46V64Z" class="svg-acc"/>
+              <path d="M125 70V48L140 55.5V77.5Z" class="svg-acc"/>
+              <path d="M72 107V76L132 46" class="svg-mute" stroke-dasharray="2 2"/>
+              <path d="M72 76 100 90 160 60" class="svg-mute" stroke-dasharray="2 2"/>
+            </g>
+            <text x="8" y="142" class="svg-text">IfcWall ×31 · IfcDoor ×5 · IfcWindow ×6</text>
+          </svg>
+        </div>
+        <h3>IFC <span class="mono">IFC 4 · ISO 16739</span></h3>
+        <p>Ein BIM-Modell mit Bauteilklassen, Geschossen und Räumen. Öffnet in Revit, Archicad, Vectorworks und jedem IFC-Viewer.</p>
+      </article>
+      <article class="fmt">
+        <div class="art">
+          <span class="label">Grundriss</span>
+          <svg viewBox="0 0 200 150" aria-label="Grundriss mit Wänden und Türen">
+            <g class="svg-fill">
+              <path d="M30 22h140v4H30zM30 124h140v4H30zM30 22h4v106h-4zM166 22h4v106h-4z"/>
+              <path d="M34 82h28v1.6H34zM74 82h30v1.6H74zM122 82h44v1.6H122zM100 26h1.6v18h-1.6zM100 56h1.6v26.8h-1.6zM70 83h1.6v41h-1.6z"/>
+            </g>
+            <g class="svg-paper"><rect x="44" y="123.5" width="18" height="5"/><rect x="118" y="123.5" width="26" height="5"/><rect x="165.5" y="40" width="5" height="20"/></g>
+            <g class="svg-ink" stroke-width=".5"><path d="M44 125h18M44 127h18M118 125h26M118 127h26M167.5 40v20M169 40v20"/></g>
+            <g class="svg-mute" stroke-width=".6"><path d="M62 83.6a12 12 0 0 1 12-12M62 83.6V71.6"/><path d="M101.6 44a12 12 0 0 1 12 12h-12"/></g>
+            <g class="svg-acc" stroke-width=".6"><path d="M30 140h140M30 137v6M170 137v6M100 137v6"/></g>
+            <text x="58" y="138" class="svg-text">7,00</text><text x="128" y="138" class="svg-text">7,00</text>
+            <text x="42" y="56" class="svg-text">Wohnen 31,4 m²</text><text x="118" y="104" class="svg-text">Schlafen 18,0 m²</text>
+          </svg>
+        </div>
+        <h3>DWG <span class="mono">AutoCAD 2018</span></h3>
+        <p>Grundrisse, Schnitte und Ansichten auf sauberen Layern nach DIN 1356. Wände als Polylinien, Bemaßung als echte Maßketten.</p>
+      </article>
+      <article class="fmt">
+        <div class="art">
+          <span class="label">Plansatz</span>
+          <svg viewBox="0 0 200 150" aria-label="PDF-Planblatt mit Schriftfeld">
+            <rect x="26" y="14" width="148" height="122" class="svg-paper" stroke="none"/>
+            <rect x="26" y="14" width="148" height="122" class="svg-ink" stroke-width=".8"/>
+            <rect x="30" y="18" width="140" height="114" class="svg-ink" stroke-width=".4"/>
+            <g class="svg-fill" opacity=".9"><path d="M42 30h70v2H42zM42 92h70v2H42zM42 30h2v64h-2zM110 30h2v64h-2zM44 60h30v1H44zM78 30h1v31h-1z"/></g>
+            <g class="svg-ink" stroke-width=".4"><path d="M122 100h48M122 108h48M122 116h48M122 124h48M122 100v32M146 108v24"/></g>
+            <rect x="122" y="100" width="48" height="8" class="svg-accfill" stroke-width=".4"/>
+            <text x="125" y="106" class="svg-text" style="font-size:5px">POINTS2PLANS</text>
+            <text x="125" y="114" class="svg-text" style="font-size:4.5px">Grundriss 3. OG</text>
+            <text x="125" y="122" class="svg-text" style="font-size:4.5px">M 1:50</text>
+            <text x="149" y="122" class="svg-text" style="font-size:4.5px">A3</text>
+            <text x="125" y="130" class="svg-text" style="font-size:4.5px">Blatt 01</text>
+            <text x="149" y="130" class="svg-text" style="font-size:4.5px">26.11.26</text>
+            <g class="svg-mute" stroke-width=".4"><path d="M42 100h70M42 98v4M112 98v4"/></g>
+          </svg>
+        </div>
+        <h3>PDF <span class="mono">PDF/A-1b · A3 / A1</span></h3>
+        <p>Druckfertige Pläne mit Schriftfeld, Nordpfeil und Maßstab. Für Bauantrag, Exposé und alle, die keine CAD-Software haben.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="preise">
+    <div class="sec-head">
+      <span class="label">Preise</span>
+      <h2>Ein Preis pro Quadratmeter. Keine Angebote, kein Warten.</h2>
+    </div>
+    <div class="split">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th class="label">Leistung</th><th class="label">Lieferung</th><th class="label">pro m² BGF</th></tr></thead>
+          <tbody>
+            <tr><td><strong>PDF-Plansatz</strong><span class="sub">Grundrisse, 1:50 oder 1:100</span></td><td class="mono">24 h</td><td class="p">0,60 €</td></tr>
+            <tr><td><strong>DWG</strong><span class="sub">Grundrisse, Schnitte, Ansichten</span></td><td class="mono">48 h</td><td class="p">0,80 €</td></tr>
+            <tr><td><strong>IFC · LOD 200</strong><span class="sub">Wände, Decken, Öffnungen</span></td><td class="mono">48 h</td><td class="p">1,60 €</td></tr>
+            <tr><td><strong>IFC · LOD 300</strong><span class="sub">zusätzlich Treppen, Stützen, Laibungen</span></td><td class="mono">72 h</td><td class="p">2,40 €</td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top:var(--s0)">Mindestauftrag 190 € netto. Alle Preise zzgl. MwSt.</p>
+      </div>
+      <div>
+        <dl class="spec">
+          <dt>Eingangsformate</dt><dd>.ply · .obj</dd>
+          <dt>Max. Dateigröße</dt><dd>20 GB</dd>
+          <dt>Min. Punktdichte</dt><dd>1 Pkt / 5 mm</dd>
+          <dt>Modellgenauigkeit</dt><dd>±10 mm</dd>
+          <dt>Koordinatensystem</dt><dd>lokal · ETRS89 / UTM</dd>
+          <dt>Raumbuch</dt><dd>CSV · DIN 277</dd>
+          <dt>Datenhaltung</dt><dd>Frankfurt · DSGVO</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="closing">
+    <h2>Ihr Scan ist fertig. Der Plan in zwei Tagen.</h2>
+    <a class="btn accent" href="#upload">Punktwolke hochladen</a>
+  </div>
+
+  <footer>
+    <span class="logo" style="font-size:.95rem">points<b>2</b>plans</span>
+    <div class="cols mono">
+      <span>Scan-to-Plan · Scan-to-BIM</span>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <span>© <span id="yr">2026</span> points2plans</span>
+    </div>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="i18n.js"></script>
+<script>
+/* ============================================================
+   KONFIGURATION
+   demo: true  -> Upload und Auftrag werden nur simuliert (für GitHub Pages).
+   Sobald ein Backend existiert, demo auf false setzen und die
+   Funktion startOrder() unten an die echte API anbinden.
+   ============================================================ */
+const P2P_CONFIG = {
+  demo: true,
+  apiBase: ""   // z. B. "https://api.points2plans.eu"
+};
+(() => {
+  const I = window.P2P_I18N;
+  let lang = 'de', D = I.dyn.de;
+  const num = (v, d) => v.toLocaleString(D.locale, {minimumFractionDigits:d, maximumFractionDigits:d});
+  /* ================= Point-cloud viewer ================= */
+  const H = 2.7;
+  // Walls: [x0,y0,x1,y1,thickness,outer]
+  const walls = [
+    [0,0,14,0,.36,1],[14,0,14,10,.36,1],[2,10,14,10,.36,1],[0,10,1,10,.36,1],[0,0,0,10,.36,1],
+    [0,6,1,6,.14,0],[2,6,6.6,6,.14,0],[9,6,14,6,.14,0],
+    [9,0,9,4.6,.14,0],[9,5.5,9,6,.14,0],
+    [3,6,3,7,.12,0],[3,7.9,3,10,.12,0],[6,6,6,10,.14,0],[10,6,10,7.5,.12,0],[10,8.4,10,10,.12,0]
+  ];
+  // Door gaps: [x0,y0,x1,y1,swingSide, lintelZ]
+  const doors = [
+    [1,6,2,6,-1,2.1],[1,10,2,10,-1,2.1],[9,4.6,9,5.5,1,2.1],[3,7,3,7.9,1,2.1],[10,7.5,10,8.4,-1,2.1]
+  ];
+  const openings = [[6.6,6,9,6,2.4]];
+  const windows = [ // [x0,y0,x1,y1] along outer walls
+    [1.5,0,3.5,0],[5,0,7.5,0],[10.5,0,12.5,0],[14,2,14,4],[7,10,9,10],[11,10,13,10]
+  ];
+  const rooms = [
+    ["Wohnen",4.5,3,54.0],["Schlafen",11.5,3,30.0],["Flur",1.5,8,12.0],["Bad",4.5,8,12.0],["Küche",8,8,16.0],["Arbeiten",12,8,16.0]
+  ];
+  const boxes = [ // x0,y0,x1,y1,h
+    [1.2,.6,4,1.5,.8],[5.4,2.5,7.6,3.6,.75],[10.6,.5,12.6,2.6,.5],[6.3,9.3,9.7,9.82,.9],[3.3,9.1,5,9.82,.55],[11,9.2,13,9.82,.75]
+  ];
+
+  let seed = 7;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const pts = []; // x,y,z,kind
+  const inWindow = (x,y,z) => {
+    if (z < .9 || z > 2.2) return false;
+    for (const w of windows) {
+      if (w[1] === w[3]) { if (Math.abs(y - w[1]) < .3 && x > w[0] && x < w[2]) return true; }
+      else if (Math.abs(x - w[0]) < .3 && y > w[1] && y < w[3]) return true;
+    }
+    return false;
+  };
+  const sampleWall = (x0,y0,x1,y1,t,z0,z1,dens) => {
+    const len = Math.hypot(x1-x0, y1-y0), dx=(x1-x0)/len, dy=(y1-y0)/len, nx=-dy, ny=dx;
+    const n = Math.round(len*(z1-z0)*dens);
+    for (let i=0;i<n;i++){
+      const u = rnd()*len, z = z0 + rnd()*(z1-z0), side = rnd()<.5?-1:1;
+      const x = x0+dx*u+nx*side*t/2 + (rnd()-.5)*.016, y = y0+dy*u+ny*side*t/2 + (rnd()-.5)*.016;
+      if (inWindow(x,y,z) && rnd() < .96) continue;
+      pts.push(x,y,z,0);
+    }
+  };
+  const dens = innerWidth < 700 ? 75 : 115;
+  walls.forEach(w => sampleWall(w[0],w[1],w[2],w[3],w[4],0,H,dens));
+  doors.forEach(d => sampleWall(d[0],d[1],d[2],d[3],.14,d[5],H,dens));
+  openings.forEach(o => sampleWall(o[0],o[1],o[2],o[3],.14,o[4],H,dens));
+  for (let i=0;i<140*(dens*.28);i++) pts.push(rnd()*14, rnd()*10, (rnd()-.5)*.01, 1);
+  boxes.forEach(b => {
+    const [x0,y0,x1,y1,h] = b, area = (x1-x0)*(y1-y0);
+    for (let i=0;i<area*dens*1.2;i++) pts.push(x0+rnd()*(x1-x0), y0+rnd()*(y1-y0), h, 2);
+    const per = 2*((x1-x0)+(y1-y0));
+    for (let i=0;i<per*h*dens;i++){
+      let u = rnd()*per, x, y; const z = rnd()*h;
+      if (u < x1-x0) { x=x0+u; y=y0; } else if ((u-=x1-x0) < y1-y0) { x=x1; y=y0+u; }
+      else if ((u-=y1-y0) < x1-x0) { x=x1-u; y=y1; } else { u-=x1-x0; x=x0; y=y1-u; }
+      pts.push(x,y,z,2);
+    }
+  });
+  const P = new Float32Array(pts); const N = P.length/4;
+
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), viewer = document.getElementById('viewer');
+  let W=0, Hc=0, dpr=1;
+  const resize = () => { const r = viewer.getBoundingClientRect(); dpr = Math.min(devicePixelRatio||1, 2); W=r.width; Hc=r.height; cv.width=W*dpr; cv.height=Hc*dpr; };
+  new ResizeObserver(resize).observe(viewer); resize();
+
+  let col = {};
+  const hex = h => { h=h.trim().replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return [n>>16&255,n>>8&255,n&255]; };
+  const readColors = () => { const cs=getComputedStyle(document.documentElement); col = { ink:hex(cs.getPropertyValue('--ink')), acc:hex(cs.getPropertyValue('--accent')), paper:hex(cs.getPropertyValue('--paper')), surf:hex(cs.getPropertyValue('--surface')), mute:hex(cs.getPropertyValue('--mute')) }; };
+  readColors();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readColors);
+  new MutationObserver(readColors).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  const rgba = (c,a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+  const targets = {
+    cloud:{pitch:32, zs:1, ptA:1, planA:0, bimA:0},
+    plan:{pitch:90, zs:0, ptA:.32, planA:1, bimA:0},
+    bim:{pitch:30, zs:1, ptA:.1, planA:0, bimA:1}
+  };
+  let mode='cloud', cur={...targets.cloud}, yaw=-.6, drag=null, lastInteract=0;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let S, cx, cy, cp, sp, cyw, syw, zs;
+  const proj = (x,y,z,out) => {
+    const X=x-7, Y=y-5, Z=(z-1.35)*zs;
+    const rx = X*cyw - Y*syw, ry = X*syw + Y*cyw;
+    out[0] = cx + rx*S; out[1] = cy - (ry*sp + Z*cp)*S; out[2] = ry*cp - Z*sp;
+    return out;
+  };
+  const tmp=[0,0,0];
+  const poly = (arr) => { ctx.beginPath(); for (let i=0;i<arr.length;i++){ const p=proj(arr[i][0],arr[i][1],arr[i][2],tmp); i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); } ctx.closePath(); };
+  const wallCorners = (w, z) => {
+    const [x0,y0,x1,y1,t] = w, len=Math.hypot(x1-x0,y1-y0), nx=-(y1-y0)/len*t/2, ny=(x1-x0)/len*t/2;
+    const ex=(x1-x0)/len*t/2*(w[5]?1:0), ey=(y1-y0)/len*t/2*(w[5]?1:0);
+    return [[x0+nx-ex,y0+ny-ey,z],[x1+nx+ex,y1+ny+ey,z],[x1-nx+ex,y1-ny+ey,z],[x0-nx-ex,y0-ny-ey,z]];
+  };
+
+  let t0 = performance.now();
+  const frame = (now) => {
+    const time = (now - t0)/1000;
+    const tg = targets[mode], k = reduce ? 1 : .055;
+    for (const key in tg) cur[key] += (tg[key]-cur[key])*k;
+    if (!drag) {
+      if (mode==='plan') { const target = Math.round(yaw/(2*Math.PI))*2*Math.PI; yaw += (target-yaw)*(reduce?1:.06); }
+      else if (!reduce) yaw += .0022;
+    }
+    const pitch = cur.pitch*Math.PI/180; cp=Math.cos(pitch); sp=Math.sin(pitch); cyw=Math.cos(yaw); syw=Math.sin(yaw); zs=cur.zs;
+    S = Math.min(W/16.5, Hc/(11 + 3*(1-sp))) * (W<700 ? .95 : .9);
+    cx = W/2; cy = Hc/2 + (W<700 ? Hc*.03 : 0);
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,W,Hc);
+
+    // BIM slab + walls
+    if (cur.bimA > .01) {
+      ctx.globalAlpha = cur.bimA;
+      ctx.fillStyle = rgba(col.acc,.10); ctx.strokeStyle = rgba(col.acc,.5); ctx.lineWidth=1;
+      poly([[-.18,-.18,0],[14.18,-.18,0],[14.18,10.18,0],[-.18,10.18,0]]); ctx.fill(); ctx.stroke();
+      const order = walls.map(w => { const p = proj((w[0]+w[2])/2,(w[1]+w[3])/2,H/2,[0,0,0]); return [p[2], w]; }).sort((a,b)=>b[0]-a[0]);
+      ctx.lineJoin='round';
+      for (const [,w] of order) {
+        const b = wallCorners(w,0), t = wallCorners(w,H*zs===0?0:H);
+        const faces = [[b[0],b[1],t[1],t[0]],[b[1],b[2],t[2],t[1]],[b[2],b[3],t[3],t[2]],[b[3],b[0],t[0],t[3]]];
+        faces.forEach((f,i) => {
+          const p = f.map(v => proj(v[0],v[1],v[2],[0,0,0]));
+          let a=0; for (let j=0;j<4;j++){ const q=p[j], r=p[(j+1)%4]; a += q[0]*r[1]-r[0]*q[1]; }
+          if (a >= 0) return;
+          ctx.beginPath(); p.forEach((q,j)=> j?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])); ctx.closePath();
+          const shade = i%2 ? .82 : .92;
+          ctx.fillStyle = w[5] ? rgba(col.surf.map((c,ix)=>c*shade+col.acc[ix]*(1-shade)*.6),1) : rgba(col.surf.map(c=>c*shade+ (1-shade)*120),1);
+          ctx.fill(); ctx.strokeStyle = rgba(col.ink,.55); ctx.lineWidth=.6; ctx.stroke();
+        });
+        poly(t); ctx.fillStyle = w[5] ? rgba(col.ink,.92) : rgba(col.ink,.75); ctx.fill();
+      }
+      // window glass
+      ctx.strokeStyle = rgba(col.acc,.9); ctx.lineWidth = 1.4;
+      windows.forEach(wn => {
+        const on = wn[1]===wn[3] ? (wn[1]===0?-.19:.19) : .19;
+        const pts4 = wn[1]===wn[3]
+          ? [[wn[0],wn[1]+on,.9],[wn[2],wn[1]+on,.9],[wn[2],wn[1]+on,2.2],[wn[0],wn[1]+on,2.2]]
+          : [[wn[0]+on,wn[1],.9],[wn[0]+on,wn[3],.9],[wn[0]+on,wn[3],2.2],[wn[0]+on,wn[1],2.2]];
+        const c = proj((wn[0]+wn[2])/2+(wn[1]===wn[3]?0:on),(wn[1]+wn[3])/2+(wn[1]===wn[3]?on:0),1.5,[0,0,0]);
+        const cIn = proj(7,5,1.5,[0,0,0]);
+        if (c[2] > cIn[2]) return;
+        poly(pts4); ctx.fillStyle = rgba(col.acc,.22); ctx.fill(); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // Points
+    if (cur.ptA > .01) {
+      const sz = Math.max(1, Math.min(1.8, S*.022));
+      const sx = 4.5, sy = 3, sweep = (time*3.2) % 13;
+      const ringA = cur.planA < .5 && cur.bimA < .5 ? 1 : 0;
+      const ink = col.ink, acc = col.acc;
+      const alphaK = [.5,.22,.42];
+      for (let kind=0; kind<3; kind++) {
+        ctx.fillStyle = rgba(ink, alphaK[kind]*cur.ptA);
+        for (let i=0;i<N;i++){
+          const o=i*4; if (P[o+3]!==kind) continue;
+          if (ringA) { const d = Math.hypot(P[o]-sx, P[o+1]-sy); if (Math.abs(d-sweep) < .22) continue; }
+          proj(P[o],P[o+1],P[o+2],tmp); ctx.fillRect(tmp[0],tmp[1],sz,sz);
+        }
+      }
+      if (ringA) {
+        ctx.fillStyle = rgba(acc, .95*cur.ptA);
+        for (let i=0;i<N;i++){
+          const o=i*4, d = Math.hypot(P[o]-sx, P[o+1]-sy);
+          if (Math.abs(d-sweep) < .22) { proj(P[o],P[o+1],P[o+2],tmp); ctx.fillRect(tmp[0],tmp[1],sz*1.25,sz*1.25); }
+        }
+        // scanner station
+        proj(sx,sy,1.5,tmp);
+        ctx.strokeStyle = rgba(acc,cur.ptA); ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.arc(tmp[0],tmp[1],5,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(tmp[0]-9,tmp[1]); ctx.lineTo(tmp[0]+9,tmp[1]); ctx.moveTo(tmp[0],tmp[1]-9); ctx.lineTo(tmp[0],tmp[1]+9); ctx.stroke();
+      }
+    }
+
+    // Plan overlay
+    if (cur.planA > .01) {
+      const a = cur.planA;
+      ctx.fillStyle = rgba(col.ink, .95*a);
+      walls.forEach(w => { poly(wallCorners(w,0)); ctx.fill(); });
+      // windows: cut + three lines
+      windows.forEach(wn => {
+        const horiz = wn[1]===wn[3], t=.36;
+        const r = horiz ? [[wn[0],wn[1]-t/2,0],[wn[2],wn[1]-t/2,0],[wn[2],wn[1]+t/2,0],[wn[0],wn[1]+t/2,0]]
+                        : [[wn[0]-t/2,wn[1],0],[wn[0]+t/2,wn[1],0],[wn[0]+t/2,wn[3],0],[wn[0]-t/2,wn[3],0]];
+        ctx.fillStyle = rgba(col.surf, a); poly(r); ctx.fill();
+        ctx.strokeStyle = rgba(col.ink, .8*a); ctx.lineWidth=.7;
+        [-.12,0,.12].forEach(o => {
+          ctx.beginPath();
+          const p1 = horiz ? proj(wn[0],wn[1]+o,0,[0,0,0]) : proj(wn[0]+o,wn[1],0,[0,0,0]);
+          const p2 = horiz ? proj(wn[2],wn[1]+o,0,[0,0,0]) : proj(wn[0]+o,wn[3],0,[0,0,0]);
+          ctx.moveTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+        });
+      });
+      // doors
+      ctx.strokeStyle = rgba(col.mute, a); ctx.lineWidth=.8;
+      doors.forEach(d => {
+        const [x0,y0,x1,y1,s] = d, len=Math.hypot(x1-x0,y1-y0), ux=(x1-x0)/len, uy=(y1-y0)/len, nx=-uy*s, ny=ux*s;
+        ctx.beginPath();
+        for (let i=0;i<=16;i++){ const th=i/16*Math.PI/2; const x=x0+(ux*Math.cos(th)+nx*Math.sin(th))*len, y=y0+(uy*Math.cos(th)+ny*Math.sin(th))*len; proj(x,y,0,tmp); i?ctx.lineTo(tmp[0],tmp[1]):ctx.moveTo(tmp[0],tmp[1]); }
+        proj(x0,y0,0,tmp); ctx.lineTo(tmp[0],tmp[1]); ctx.stroke();
+      });
+      // room labels
+      const small = W < 700;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      rooms.forEach((r, ri) => {
+        proj(r[1],r[2],0,tmp);
+        ctx.fillStyle = rgba(col.ink, a);
+        ctx.font = `500 ${small?10:12}px "Inter Tight", Arial, sans-serif`; ctx.fillText(D.rooms[ri] || r[0], tmp[0], tmp[1]-7);
+        ctx.fillStyle = rgba(col.mute, a);
+        ctx.font = `400 ${small?9:10}px "JetBrains Mono", monospace`; ctx.fillText(num(r[3],1)+' m²', tmp[0], tmp[1]+8);
+      });
+      // dimension chains
+      ctx.strokeStyle = rgba(col.acc, a); ctx.fillStyle = rgba(col.acc, a); ctx.lineWidth=.8;
+      const dimH = (xs, y) => {
+        const p0 = proj(xs[0],y,0,[0,0,0]), p1 = proj(xs[xs.length-1],y,0,[0,0,0]);
+        ctx.beginPath(); ctx.moveTo(p0[0],p0[1]); ctx.lineTo(p1[0],p1[1]); ctx.stroke();
+        xs.forEach((x,i) => { const p = proj(x,y,0,[0,0,0]); ctx.beginPath(); ctx.moveTo(p[0]-3,p[1]+3); ctx.lineTo(p[0]+3,p[1]-3); ctx.stroke();
+          if (i) { const m = proj((xs[i-1]+x)/2,y,0,[0,0,0]); ctx.font=`400 ${small?8:10}px "JetBrains Mono", monospace`; ctx.fillText(num(x-xs[i-1],2), m[0], m[1]+10); } });
+      };
+      const dimV = (ys, x) => {
+        const p0 = proj(x,ys[0],0,[0,0,0]), p1 = proj(x,ys[ys.length-1],0,[0,0,0]);
+        ctx.beginPath(); ctx.moveTo(p0[0],p0[1]); ctx.lineTo(p1[0],p1[1]); ctx.stroke();
+        ys.forEach((y,i) => { const p = proj(x,y,0,[0,0,0]); ctx.beginPath(); ctx.moveTo(p[0]-3,p[1]+3); ctx.lineTo(p[0]+3,p[1]-3); ctx.stroke();
+          if (i) { const m = proj(x,(ys[i-1]+y)/2,0,[0,0,0]); ctx.save(); ctx.translate(m[0]+10,m[1]); ctx.rotate(-Math.PI/2); ctx.font=`400 ${small?8:10}px "JetBrains Mono", monospace`; ctx.fillText(num(y-ys[i-1],2),0,0); ctx.restore(); } });
+      };
+      dimH([0,9,14], -.75); dimV([0,6,10], 14.75);
+      // north arrow + scale
+      if (!small) {
+        const nx = W - 48, ny = 104;
+        ctx.strokeStyle = rgba(col.ink,a); ctx.fillStyle = rgba(col.ink,a); ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(nx,ny,14,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(nx,ny-14); ctx.lineTo(nx+5,ny+6); ctx.lineTo(nx,ny+2); ctx.closePath(); ctx.fill();
+        ctx.font='500 10px "JetBrains Mono", monospace'; ctx.fillText('N', nx, ny-24);
+      }
+    }
+
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+
+  // interaction
+  viewer.addEventListener('pointerdown', e => { if (e.target.closest('.modes')) return; drag = {x:e.clientX, yaw}; viewer.setPointerCapture(e.pointerId); });
+  viewer.addEventListener('pointermove', e => { if (drag) { yaw = drag.yaw + (e.clientX-drag.x)*.008; lastInteract = performance.now(); } });
+  const endDrag = () => { drag = null; };
+  viewer.addEventListener('pointerup', endDrag); viewer.addEventListener('pointercancel', endDrag);
+
+  const bimRo = `IFC 4 · ${walls.length} IfcWall · ${doors.length} IfcDoor · ${windows.length} IfcWindow`;
+  const btns = [...document.querySelectorAll('.modes button')];
+  const setMode = m => {
+    mode = m; btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode===m));
+    document.getElementById('ro-k').textContent = D.ro[m][0];
+    document.getElementById('ro-v').textContent = D.ro[m][1] || bimRo;
+  };
+  let auto = !reduce;
+  btns.forEach(b => b.addEventListener('click', () => { auto = false; setMode(b.dataset.mode); }));
+  const order = ['cloud','plan','bim'];
+  setInterval(() => { if (auto && performance.now()-lastInteract > 4000) setMode(order[(order.indexOf(mode)+1)%3]); }, 5200);
+
+  /* ================= Upload ================= */
+  { const y = document.getElementById('yr'); if (y) y.textContent = new Date().getFullYear(); }
+  const $ = id => document.getElementById(id);
+  const toast = msg => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('show'),2600); };
+  const fmtSize = b => b > 1e9 ? num(b/1e9,2)+' GB' : num(b/1e6,1)+' MB';
+  let file = {name:'Altbau_3OG_Gesamt.ply', size:412.6e6, sample:true};
+  const showFile = () => {
+    $('file-row').hidden = !file; $('go').disabled = !file;
+    if (!file) return;
+    const ext = file.name.split('.').pop().toUpperCase();
+    $('file-ext').textContent = ext; $('file-name').textContent = file.name;
+    $('file-meta').textContent = fmtSize(file.size) + (file.sample ? D.sampleMeta : D.ready);
+  };
+  const takeFile = f => {
+    const ok = /\.(ply|obj)$/i.test(f.name);
+    $('file-err').hidden = ok;
+    if (!ok) { $('file-err').textContent = D.errFormat(f.name); return; }
+    if (f.size > 20e9) { $('file-err').hidden=false; $('file-err').textContent = D.errSize; return; }
+    file = {name:f.name, size:f.size, sample:false}; showFile();
+  };
+  $('file-in').addEventListener('change', e => { if (e.target.files[0]) takeFile(e.target.files[0]); e.target.value=''; });
+  const zone = $('zone');
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('over'); }));
+  zone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) takeFile(f); });
+  $('file-clear').addEventListener('click', () => { file = null; showFile(); });
+
+  const rates = {pdf:.6, dwg:.8, ifc200:1.6, ifc300:2.4};
+  const eur = (n, d=0) => n.toLocaleString(D.locale,{style:'currency', currency:'EUR', minimumFractionDigits:d, maximumFractionDigits:d});
+  const calc = () => {
+    const area = Math.max(0, +$('area-in').value || 0);
+    const ifc = $('o-ifc').checked, lod = document.querySelector('[name=lod]:checked').value;
+    let r = 0, days = 1;
+    if ($('o-pdf').checked) r += rates.pdf;
+    if ($('o-dwg').checked) { r += rates.dwg; days = 2; }
+    if (ifc) { r += lod==='300' ? rates.ifc300 : rates.ifc200; days = lod==='300' ? 3 : 2; }
+    $('lod-set').disabled = !ifc; $('lod-set').style.opacity = ifc ? 1 : .4;
+    const price = r ? Math.max(190, area*r) : 0;
+    $('price').textContent = eur(price);
+    $('rate').textContent = r ? eur(r,2) + '/m²' : D.chooseFormat;
+    const d = new Date(); let n = days; while (n) { d.setDate(d.getDate()+1); if (d.getDay()%6) n--; }
+    $('due').textContent = D.dueBy + d.toLocaleDateString(D.locale,{weekday:'short', day:'2-digit', month:'2-digit'});
+    $('go').disabled = !file || !r;
+  };
+  $('cfg').addEventListener('input', calc); calc(); showFile();
+
+  $('cfg').addEventListener('submit', e => {
+    e.preventDefault(); if (!file) return;
+    if (!P2P_CONFIG.demo) { startOrder(); return; }
+    $('sum').hidden = true; $('status').hidden = false; $('dl').hidden = true; $('again').hidden = true;
+    const lis = [...$('steps').children]; lis.forEach(l => l.className='');
+    lis[0].lastElementChild.textContent = fmtSize(file.size);
+    lis[2].lastElementChild.textContent = $('o-ifc').checked ? 'LOD ' + document.querySelector('[name=lod]:checked').value : '2D';
+    let p = 0;
+    const tick = () => {
+      p = Math.min(100, p + (reduce ? 100 : 1.4));
+      $('st-bar').style.width = p + '%'; $('st-pct').textContent = Math.round(p) + ' %';
+      const stage = Math.min(3, Math.floor(p/25));
+      lis.forEach((l,i) => l.className = i < stage ? 'done' : i===stage ? 'on' : '');
+      if (p < 100) setTimeout(tick, 45);
+      else {
+        lis.forEach(l => l.className='done'); $('st-label').textContent = D.order + ' P2P-2611-0418' + D.done;
+        const sel = {IFC:$('o-ifc').checked, DWG:$('o-dwg').checked, PDF:$('o-pdf').checked};
+        [...$('dl').children].forEach(b => b.hidden = !sel[b.dataset.f]);
+        $('dl').hidden = false; $('again').hidden = false;
+      }
+    };
+    tick();
+  });
+  // Platzhalter für die echte Anbindung (siehe README, Abschnitt Backend):
+  // 1. POST {apiBase}/orders  -> Auftrag + signierte Upload-URL
+  // 2. PUT der Datei direkt in den Objektspeicher (in Teilen, mit Fortschritt)
+  // 3. Weiterleitung zur Zahlung, danach Status-Seite
+  function startOrder(){ toast(D.notConnected); }
+  $('dl').addEventListener('click', e => { const b = e.target.closest('button'); if (b) toast(D.demoFile(b.dataset.f)); });
+  $('again').addEventListener('click', () => { $('status').hidden = true; $('sum').hidden = false; $('st-label').textContent = D.order + ' P2P-2611-0418'; });
+  /* ================= Sprachen ================= */
+  const textNodes = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => (n.parentNode.closest('script,style') || !n.nodeValue.trim()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  });
+  while (walker.nextNode()) textNodes.push([walker.currentNode, walker.currentNode.nodeValue]);
+  const attrEls = [...document.querySelectorAll('[aria-label]')].map(el => [el, el.getAttribute('aria-label')]);
+  const tr = de => { const k = de.trim(), e = I.text[k]; return (lang === 'de' || !e || !e[lang]) ? de : de.replace(k, e[lang]); };
+  const metaDesc = document.querySelector('meta[name="description"]');
+  const applyLang = l => {
+    if (!I.langs.includes(l)) l = 'de';
+    lang = l; D = I.dyn[l];
+    textNodes.forEach(([n, de]) => { n.nodeValue = tr(de); });
+    attrEls.forEach(([el, de]) => el.setAttribute('aria-label', tr(de)));
+    document.documentElement.lang = l;
+    document.title = I.meta[l].title; if (metaDesc) metaDesc.content = I.meta[l].description;
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === l));
+    setMode(mode); showFile(); calc();
+    if (!$('file-err').hidden) $('file-err').hidden = true;
+    const st = $('st-label'); if (st) st.textContent = D.order + ' P2P-2611-0418' + ($('dl').hidden ? '' : D.done);
+    try { localStorage.setItem('p2p-lang', l); } catch (e) {}
+    try { const u = new URL(location.href); if (l === 'de') u.searchParams.delete('lang'); else u.searchParams.set('lang', l); history.replaceState(null, '', u); } catch (e) {}
+  };
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+  let start = new URLSearchParams(location.search).get('lang');
+  if (!start) { try { start = localStorage.getItem('p2p-lang'); } catch (e) {} }
+  if (!start) start = (navigator.languages || [navigator.language || 'de']).map(x => x.slice(0,2).toLowerCase()).find(x => I.langs.includes(x));
+  applyLang(start || 'de');
+})();
+</script>
+</body>
+</html>
