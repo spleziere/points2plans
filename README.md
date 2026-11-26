@@ -60,15 +60,21 @@ Die Seite ist in `index.html` auf Deutsch geschrieben. `i18n.js` enthält zu jed
 2. `const order = ['cloud','plan']` auf `['cloud','plan','bim']` ändern.
 3. Upload-Formular, Preistabelle und Formate aus `version-mit-bim` übernehmen.
 
-## Demo-Modus
+## Anfrage-Postfach (E-Mail mit Anhang)
 
-Ganz oben im `<script>` von `index.html`:
+Besucher schreiben über das Postfach eine Anfrage. Sie landet als E-Mail in Ihrem Postfach, mit Name, E-Mail-Adresse, Nachricht, Auswahl (Formate, Umfang, Maßstab, Fläche, Preis) und Anhang oder Download-Link.
 
-```js
-const P2P_CONFIG = { demo: true, apiBase: "" };
-```
+- Versand über **FormSubmit** (formsubmit.co), kostenlos, ohne Konto.
+- Anhänge: nur `.ply` / `.obj`, **zusammen höchstens 10 MB** (Grenze von FormSubmit). Größere Scans schicken Besucher als Link (WeTransfer, Dropbox, Google Drive).
+- Antworten: Einfach in Gmail auf die E-Mail antworten, sie geht an die Adresse des Besuchers.
 
-Solange `demo: true` ist, wird beim Klick auf „Auftrag starten“ nichts hochgeladen. Der Ablauf wird nur simuliert. GitHub Pages kann keine Dateien empfangen, dafür braucht es ein Backend (siehe unten).
+**Einrichtung (einmalig):**
+1. Eine erste Anfrage an `https://formsubmit.co/IHRE-ADRESSE` senden. FormSubmit schickt daraufhin eine Aktivierungs-E-Mail.
+2. In der E-Mail auf **Activate Form** klicken. Danach erhalten Sie eine Zeichenfolge (zufällig aussehender Text).
+3. In `index.html` oben eintragen: `formEndpoint: "https://formsubmit.co/DIE-ZEICHENFOLGE"`.
+   So steht Ihre E-Mail-Adresse nicht im öffentlichen Code.
+
+Solange `formEndpoint` leer ist, zeigt das Postfach „noch nicht freigeschaltet“ an.
 
 ## Was bis zum echten Betrieb fehlt
 
