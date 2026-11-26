@@ -9,12 +9,12 @@ window.P2P_I18N = {
   langs: ["de", "en", "es"],
 
   meta: {
-    de: { title: "points2plans · Punktwolke zu Grundriss und BIM",
-          description: "Punktwolke als .ply oder .obj hochladen, nach 48 Stunden IFC-Modell, DWG und PDF-Plansatz herunterladen. Festpreis pro Quadratmeter." },
-    en: { title: "points2plans · Point cloud to floor plan and BIM",
-          description: "Upload your point cloud as .ply or .obj and download an IFC model, DWG and PDF drawing set within 48 hours. Fixed price per square metre." },
-    es: { title: "points2plans · De nube de puntos a plano y BIM",
-          description: "Suba su nube de puntos en .ply u .obj y descargue en 48 horas un modelo IFC, DWG y un juego de planos en PDF. Precio fijo por metro cuadrado." }
+    de: { title: "points2plans · Punktwolke zu Grundriss",
+          description: "Punktwolke als .ply oder .obj hochladen, nach 48 Stunden Grundrisse als DWG und PDF herunterladen. Festpreis pro Quadratmeter." },
+    en: { title: "points2plans · Point cloud to floor plan",
+          description: "Upload your point cloud as .ply or .obj and download floor plans as DWG and PDF within 48 hours. Fixed price per square metre." },
+    es: { title: "points2plans · De nube de puntos a plano",
+          description: "Suba su nube de puntos en .ply u .obj y descargue en 48 horas sus plantas en DWG y PDF. Precio fijo por metro cuadrado." }
   },
 
   /* Statische Texte: Schlüssel = deutscher Text aus index.html */
@@ -138,6 +138,37 @@ window.P2P_I18N = {
     "Ihr Scan ist fertig. Der Plan in zwei Tagen.": { en: "Your scan is done. Your plans follow in two days.", es: "Su escaneo está listo. Sus planos, en dos días." },
     "Impressum": { en: "Legal notice", es: "Aviso legal" },
     "Datenschutz": { en: "Privacy", es: "Privacidad" },
+    /* 2D-Version */
+    "Scan-to-Plan \u00a0/\u00a0 2D-Bestandspläne": { en: "Scan-to-Plan \u00a0/\u00a0 2D as-built drawings", es: "Scan-to-Plan \u00a0/\u00a0 planos 2D del estado actual" },
+    "Scan-to-Plan · 2D-Bestandspläne": { en: "Scan-to-Plan · 2D as-built drawings", es: "Scan-to-Plan · planos 2D del estado actual" },
+    "Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen Ihre Grundrisse als DWG und PDF zum Download bereit.":
+      { en: "Upload your point cloud as .ply or .obj. Two working days later, your floor plans are ready to download as DWG and PDF.",
+        es: "Suba su nube de puntos en .ply u .obj. Dos días laborables después, sus plantas están listas para descargar en DWG y PDF." },
+    "Animierte Punktwolke einer Wohnung, die sich in einen Grundriss verwandelt":
+      { en: "Animated point cloud of a flat that turns into a floor plan", es: "Nube de puntos animada de una vivienda que se convierte en planta" },
+    "Eine Datei hochladen, fertige Pläne zurückbekommen.": { en: "Upload one file, get finished drawings back.", es: "Suba un archivo, reciba planos terminados." },
+    "Umfang": { en: "Scope", es: "Alcance" },
+    "Grundrisse": { en: "Floor plans", es: "Plantas" },
+    "alle Geschosse": { en: "all floors", es: "todas las plantas" },
+    "+ Schnitte & Ansichten": { en: "+ sections & elevations", es: "+ secciones y alzados" },
+    "2 Schnitte, 4 Ansichten": { en: "2 sections, 4 elevations", es: "2 secciones, 4 alzados" },
+    "Zeichnen": { en: "Drafting", es: "Dibujo" },
+    "Wände, Türen, Fenster und Treppen werden sauber nachgezeichnet und bemaßt, nicht automatisch nachgespurt.":
+      { en: "Walls, doors, windows and stairs are drawn cleanly and dimensioned, not auto-traced.",
+        es: "Muros, puertas, ventanas y escaleras se dibujan y acotan con cuidado, sin calco automático." },
+    "DWG und PDF stehen bereit, dazu ein Raumbuch mit Flächen als CSV.":
+      { en: "DWG and PDF are ready, plus a room schedule with areas as CSV.", es: "DWG y PDF listos, junto con un cuadro de superficies en CSV." },
+    "Demnächst": { en: "Coming soon", es: "Próximamente" },
+    "IFC · BIM": { en: "IFC · BIM", es: "IFC · BIM" },
+    "in Vorbereitung": { en: "in preparation", es: "en preparación" },
+    "3D-Modelle für Revit, Archicad und Vectorworks sind in Vorbereitung. Schreiben Sie uns, wenn Sie Interesse haben.":
+      { en: "3D models for Revit, Archicad and Vectorworks are in preparation. Write to us if you are interested.",
+        es: "Los modelos 3D para Revit, Archicad y Vectorworks están en preparación. Escríbanos si le interesa." },
+    "Schnitte & Ansichten": { en: "Sections & elevations", es: "Secciones y alzados" },
+    "Aufpreis, 2 Schnitte und 4 Ansichten": { en: "surcharge, 2 sections and 4 elevations", es: "suplemento, 2 secciones y 4 alzados" },
+    "+0,60 €": { en: "+€0.60", es: "+0,60 €" },
+    "Grundrisse auf sauberen Layern": { en: "Floor plans on clean layers", es: "Plantas en capas ordenadas" },
+    "Zeichengenauigkeit": { en: "Drawing accuracy", es: "Precisión del dibujo" },
     /* aria-labels */
     "Hauptnavigation": { en: "Main navigation", es: "Navegación principal" },
     "points2plans Startseite": { en: "points2plans home", es: "Inicio points2plans" },
@@ -155,6 +186,8 @@ window.P2P_I18N = {
   dyn: {
     de: {
       locale: "de-DE",
+      scopePlan: "Grundrisse",
+      scopeFull: "+ Schnitte & Ansichten",
       rooms: ["Wohnen", "Schlafen", "Flur", "Bad", "Küche", "Arbeiten"],
       ro: { cloud: ["Eingang · .ply", "2.418.930 Punkte · ±4 mm"], plan: ["Ausgabe · .dwg / .pdf", "Grundriss 1:50 · 140,0 m² BGF"], bim: ["Ausgabe · .ifc"] },
       sampleMeta: " · 2.418.930 Punkte · Beispieldatei",
@@ -170,6 +203,8 @@ window.P2P_I18N = {
     },
     en: {
       locale: "en-GB",
+      scopePlan: "Floor plans",
+      scopeFull: "+ sections & elevations",
       rooms: ["Living", "Bedroom", "Hall", "Bath", "Kitchen", "Study"],
       ro: { cloud: ["Input · .ply", "2,418,930 points · ±4 mm"], plan: ["Output · .dwg / .pdf", "Floor plan 1:50 · 140.0 m² GFA"], bim: ["Output · .ifc"] },
       sampleMeta: " · 2,418,930 points · sample file",
@@ -185,6 +220,8 @@ window.P2P_I18N = {
     },
     es: {
       locale: "es-ES",
+      scopePlan: "Plantas",
+      scopeFull: "+ secciones y alzados",
       rooms: ["Salón", "Dormitorio", "Pasillo", "Baño", "Cocina", "Estudio"],
       ro: { cloud: ["Entrada · .ply", "2.418.930 puntos · ±4 mm"], plan: ["Salida · .dwg / .pdf", "Planta 1:50 · 140,0 m² construidos"], bim: ["Salida · .ifc"] },
       sampleMeta: " · 2.418.930 puntos · archivo de ejemplo",

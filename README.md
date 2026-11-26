@@ -49,6 +49,17 @@ Die Seite ist in `index.html` auf Deutsch geschrieben. `i18n.js` enthält zu jed
 - Impressum und Datenschutz bleiben deutsch (für einen deutschen Anbieter ausreichend).
 - Für Google: Weil die Übersetzung im Browser passiert, indexiert Google meist nur die deutsche Fassung. Wenn englische und spanische Suchtreffer wichtig werden, später je Sprache eine eigene Seite erzeugen (`/en/`, `/es/`).
 
+
+## Versionen: 2D jetzt, 3D später
+
+- **`main`** (live): nur 2D-Pläne als DWG und PDF, IFC/BIM erscheint als Kachel „Demnächst“.
+- **`version-mit-bim`** (Branch auf GitHub): die vollständige Version mit IFC, LOD-Auswahl und 3D-Ansicht im Viewer. Nicht löschen.
+
+**3D später wieder einschalten:** Am einfachsten auf GitHub einen Pull Request von `version-mit-bim` nach `main` öffnen und die Texte prüfen. Oder in `index.html` von `main` von Hand:
+1. Den auskommentierten BIM-Button im Viewer wieder einkommentieren (`<!-- 3D später … -->`).
+2. `const order = ['cloud','plan']` auf `['cloud','plan','bim']` ändern.
+3. Upload-Formular, Preistabelle und Formate aus `version-mit-bim` übernehmen.
+
 ## Demo-Modus
 
 Ganz oben im `<script>` von `index.html`:

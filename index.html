@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>points2plans · Punktwolke zu Grundriss und BIM</title>
-<meta name="description" content="Punktwolke als .ply oder .obj hochladen, nach 48 Stunden IFC-Modell, DWG und PDF-Plansatz herunterladen. Festpreis pro Quadratmeter.">
+<title>points2plans · Punktwolke zu Grundriss</title>
+<meta name="description" content="Punktwolke als .ply oder .obj hochladen, nach 48 Stunden Grundrisse als DWG und PDF herunterladen. Festpreis pro Quadratmeter.">
 <meta name="theme-color" content="#ECEDEA" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111316" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="points2plans">
-<meta property="og:description" content="Aus Punkten werden Pläne. Punktwolke hochladen, IFC, DWG oder PDF herunterladen.">
+<meta property="og:description" content="Aus Punkten werden Pläne. Punktwolke hochladen, Grundriss als DWG oder PDF herunterladen.">
 <meta property="og:type" content="website">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://points2plans.com/">
@@ -216,7 +216,7 @@ legend{padding:0; margin-bottom:.65rem}
 .steps li.on .tick{border-color:var(--accent); background:radial-gradient(circle, var(--accent) 0 3px, transparent 3.5px)}
 .steps li.done{color:var(--ink)}
 .steps li.done .tick{border-color:var(--ink); background:var(--ink)}
-.dl{display:grid; grid-template-columns:repeat(3,1fr); gap:.4rem}
+.dl{display:grid; grid-template-columns:repeat(2,1fr); gap:.4rem}
 .dl button{
   font:500 .85rem var(--f-body); padding:.85rem .5rem; border:1px solid var(--ink); background:transparent; color:var(--ink); border-radius:4px; cursor:pointer;
   display:flex; flex-direction:column; gap:.15rem; align-items:flex-start;
@@ -250,6 +250,8 @@ legend{padding:0; margin-bottom:.65rem}
 .fmt .art{aspect-ratio:4/3; max-width:100%; background:var(--surface); display:grid; place-items:center; padding:var(--s2); position:relative}
 .fmt .art svg{width:100%; height:100%}
 .fmt .art .label{position:absolute; top:var(--s0); left:var(--s0)}
+.fmt.soon .art svg{opacity:.38}
+.fmt.soon h3{color:var(--mute)}
 .fmt h3{margin:0; display:flex; align-items:baseline; justify-content:space-between; gap:var(--s0); font-family:var(--f-display); font-variation-settings:"wdth" 120; font-weight:400; font-size:1.9rem; letter-spacing:-.03em}
 .fmt h3 .mono{color:var(--mute); font-size:.7rem}
 .fmt p{margin:0; color:var(--mute); font-size:.9375rem; max-width:42ch}
@@ -325,10 +327,10 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
   </nav>
 
   <header class="hero" id="top">
-    <span class="eyebrow label">Scan-to-Plan &nbsp;/&nbsp; Scan-to-BIM</span>
+    <span class="eyebrow label">Scan-to-Plan &nbsp;/&nbsp; 2D-Bestandspläne</span>
     <h1>Aus <em>Punkten</em> werden Pläne<span class="dot">.</span></h1>
     <div class="lede">
-      <p>Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen IFC-Modell, DWG und PDF-Plansatz zum Download bereit.</p>
+      <p>Laden Sie Ihre Punktwolke als .ply oder .obj hoch. Zwei Werktage später liegen Ihre Grundrisse als DWG und PDF zum Download bereit.</p>
       <div class="ctas">
         <a class="btn accent" href="#upload">Punktwolke hochladen</a>
         <a class="btn ghost" href="#formate">Beispiele ansehen</a>
@@ -337,12 +339,12 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
   </header>
 
   <div class="viewer" id="viewer">
-    <canvas id="cv" aria-label="Animierte Punktwolke einer Wohnung, die sich in einen Grundriss und ein BIM-Modell verwandelt" role="img"></canvas>
+    <canvas id="cv" aria-label="Animierte Punktwolke einer Wohnung, die sich in einen Grundriss verwandelt" role="img"></canvas>
     <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
     <div class="modes" role="group" aria-label="Ansicht wählen">
       <button type="button" data-mode="cloud" aria-pressed="true">Punktwolke</button>
       <button type="button" data-mode="plan" aria-pressed="false">Grundriss</button>
-      <button type="button" data-mode="bim" aria-pressed="false">BIM</button>
+      <!-- 3D später wieder einschalten: <button type="button" data-mode="bim" aria-pressed="false">BIM</button> -->
     </div>
     <span class="hint mono">Ziehen zum Drehen</span>
     <div class="readout">
@@ -363,7 +365,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
   <section id="upload">
     <div class="sec-head">
       <span class="label">Auftrag</span>
-      <h2>Eine Datei hochladen, drei Formate zurückbekommen.</h2>
+      <h2>Eine Datei hochladen, fertige Pläne zurückbekommen.</h2>
     </div>
 
     <div class="order">
@@ -398,17 +400,16 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
       <form class="cfg" id="cfg" novalidate>
         <fieldset>
           <legend class="label">Ausgabe</legend>
-          <div class="opts">
-            <label class="opt"><input type="checkbox" id="o-ifc" name="out" value="ifc" checked><span>IFC<small>IFC 4 · BIM</small></span></label>
+          <div class="opts two">
             <label class="opt"><input type="checkbox" id="o-dwg" name="out" value="dwg" checked><span>DWG<small>2018 · 2D</small></span></label>
             <label class="opt"><input type="checkbox" id="o-pdf" name="out" value="pdf" checked><span>PDF<small>PDF/A · Plansatz</small></span></label>
           </div>
         </fieldset>
-        <fieldset id="lod-set">
-          <legend class="label">Detailgrad Modell</legend>
+        <fieldset>
+          <legend class="label">Umfang</legend>
           <div class="opts two">
-            <label class="opt"><input type="radio" id="lod-200" name="lod" value="200"><span>LOD 200<small>Wände, Decken, Öffnungen</small></span></label>
-            <label class="opt"><input type="radio" id="lod-300" name="lod" value="300" checked><span>LOD 300<small>+ Treppen, Stützen, Laibungen</small></span></label>
+            <label class="opt"><input type="radio" id="scope-plan" name="scope" value="plan" checked><span>Grundrisse<small>alle Geschosse</small></span></label>
+            <label class="opt"><input type="radio" id="scope-full" name="scope" value="full"><span>+ Schnitte &amp; Ansichten<small>2 Schnitte, 4 Ansichten</small></span></label>
           </div>
         </fieldset>
         <fieldset>
@@ -441,11 +442,10 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
           <ol class="steps" id="steps">
             <li><span class="tick"></span><span>Upload</span><span class="mono">412 MB</span></li>
             <li><span class="tick"></span><span>Prüfung der Punktwolke</span><span class="mono">Dichte, Lücken</span></li>
-            <li><span class="tick"></span><span>Modellierung</span><span class="mono">LOD 300</span></li>
+            <li><span class="tick"></span><span>Zeichnen</span><span class="mono">Grundrisse</span></li>
             <li><span class="tick"></span><span>Qualitätskontrolle</span><span class="mono">Soll / Ist</span></li>
           </ol>
           <div class="dl" id="dl" hidden>
-            <button type="button" data-f="IFC"><span>Modell.ifc</span><small>18,4 MB</small></button>
             <button type="button" data-f="DWG"><span>Grundriss.dwg</span><small>2,1 MB</small></button>
             <button type="button" data-f="PDF"><span>Plansatz.pdf</span><small>6 Blatt</small></button>
           </div>
@@ -465,8 +465,8 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
     <ol class="process">
       <li><span class="n">01</span><h3>Hochladen</h3><p>Exportieren Sie die registrierte Punktwolke aus Ihrer Scan-Software als .ply oder .obj.</p><span class="t label">Sie · 5 min</span></li>
       <li><span class="n">02</span><h3>Prüfen</h3><p>Wir prüfen Dichte, Registrierung und Abdeckung und melden Lücken, bevor modelliert wird.</p><span class="t label">points2plans · 2 h</span></li>
-      <li><span class="n">03</span><h3>Modellieren</h3><p>Wände, Decken, Öffnungen und Treppen entstehen als echte Bauteile, nicht als Netz.</p><span class="t label">points2plans · 1–2 Tage</span></li>
-      <li><span class="n">04</span><h3>Herunterladen</h3><p>IFC, DWG und PDF stehen bereit, dazu ein Raumbuch mit Flächen als CSV.</p><span class="t label">Sie · 1 Klick</span></li>
+      <li><span class="n">03</span><h3>Zeichnen</h3><p>Wände, Türen, Fenster und Treppen werden sauber nachgezeichnet und bemaßt, nicht automatisch nachgespurt.</p><span class="t label">points2plans · 1–2 Tage</span></li>
+      <li><span class="n">04</span><h3>Herunterladen</h3><p>DWG und PDF stehen bereit, dazu ein Raumbuch mit Flächen als CSV.</p><span class="t label">Sie · 1 Klick</span></li>
     </ol>
   </section>
 
@@ -477,28 +477,6 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
       <h2>Was Sie bekommen.</h2>
     </div>
     <div class="formats">
-      <article class="fmt">
-        <div class="art">
-          <span class="label">Axonometrie</span>
-          <svg viewBox="0 0 200 150" aria-label="Axonometrische Darstellung eines BIM-Modells">
-            <g stroke-width=".8" stroke-linejoin="round">
-              <path d="M40 92 100 122 165 90 105 60Z" class="svg-accfill" stroke-width=".6"/>
-              <path d="M40 92V52L105 20V60Z" class="svg-paper" stroke="none"/>
-              <path d="M40 92V52L105 20V60L40 92" class="svg-ink"/>
-              <path d="M105 60V20L165 50V90Z" class="svg-paper" stroke="none"/>
-              <path d="M105 60V20L165 50V90" class="svg-ink"/>
-              <path d="M58 83V65L74 57V75Z" class="svg-acc"/>
-              <path d="M82 71V53L96 46V64Z" class="svg-acc"/>
-              <path d="M125 70V48L140 55.5V77.5Z" class="svg-acc"/>
-              <path d="M72 107V76L132 46" class="svg-mute" stroke-dasharray="2 2"/>
-              <path d="M72 76 100 90 160 60" class="svg-mute" stroke-dasharray="2 2"/>
-            </g>
-            <text x="8" y="142" class="svg-text">IfcWall ×31 · IfcDoor ×5 · IfcWindow ×6</text>
-          </svg>
-        </div>
-        <h3>IFC <span class="mono">IFC 4 · ISO 16739</span></h3>
-        <p>Ein BIM-Modell mit Bauteilklassen, Geschossen und Räumen. Öffnet in Revit, Archicad, Vectorworks und jedem IFC-Viewer.</p>
-      </article>
       <article class="fmt">
         <div class="art">
           <span class="label">Grundriss</span>
@@ -540,6 +518,28 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
         <h3>PDF <span class="mono">PDF/A-1b · A3 / A1</span></h3>
         <p>Druckfertige Pläne mit Schriftfeld, Nordpfeil und Maßstab. Für Bauantrag, Exposé und alle, die keine CAD-Software haben.</p>
       </article>
+      <article class="fmt soon">
+        <div class="art">
+          <span class="label">Demnächst</span>
+          <svg viewBox="0 0 200 150" aria-label="Axonometrische Darstellung eines BIM-Modells">
+            <g stroke-width=".8" stroke-linejoin="round">
+              <path d="M40 92 100 122 165 90 105 60Z" class="svg-accfill" stroke-width=".6"/>
+              <path d="M40 92V52L105 20V60Z" class="svg-paper" stroke="none"/>
+              <path d="M40 92V52L105 20V60L40 92" class="svg-ink"/>
+              <path d="M105 60V20L165 50V90Z" class="svg-paper" stroke="none"/>
+              <path d="M105 60V20L165 50V90" class="svg-ink"/>
+              <path d="M58 83V65L74 57V75Z" class="svg-acc"/>
+              <path d="M82 71V53L96 46V64Z" class="svg-acc"/>
+              <path d="M125 70V48L140 55.5V77.5Z" class="svg-acc"/>
+              <path d="M72 107V76L132 46" class="svg-mute" stroke-dasharray="2 2"/>
+              <path d="M72 76 100 90 160 60" class="svg-mute" stroke-dasharray="2 2"/>
+            </g>
+            <text x="8" y="142" class="svg-text">IfcWall ×31 · IfcDoor ×5 · IfcWindow ×6</text>
+          </svg>
+        </div>
+        <h3>IFC · BIM <span class="mono">in Vorbereitung</span></h3>
+        <p>3D-Modelle für Revit, Archicad und Vectorworks sind in Vorbereitung. Schreiben Sie uns, wenn Sie Interesse haben.</p>
+      </article>
     </div>
   </section>
 
@@ -555,9 +555,8 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
           <thead><tr><th class="label">Leistung</th><th class="label">Lieferung</th><th class="label">pro m² BGF</th></tr></thead>
           <tbody>
             <tr><td><strong>PDF-Plansatz</strong><span class="sub">Grundrisse, 1:50 oder 1:100</span></td><td class="mono">24 h</td><td class="p">0,60 €</td></tr>
-            <tr><td><strong>DWG</strong><span class="sub">Grundrisse, Schnitte, Ansichten</span></td><td class="mono">48 h</td><td class="p">0,80 €</td></tr>
-            <tr><td><strong>IFC · LOD 200</strong><span class="sub">Wände, Decken, Öffnungen</span></td><td class="mono">48 h</td><td class="p">1,60 €</td></tr>
-            <tr><td><strong>IFC · LOD 300</strong><span class="sub">zusätzlich Treppen, Stützen, Laibungen</span></td><td class="mono">72 h</td><td class="p">2,40 €</td></tr>
+            <tr><td><strong>DWG</strong><span class="sub">Grundrisse auf sauberen Layern</span></td><td class="mono">48 h</td><td class="p">0,80 €</td></tr>
+            <tr><td><strong>Schnitte &amp; Ansichten</strong><span class="sub">Aufpreis, 2 Schnitte und 4 Ansichten</span></td><td class="mono">+24 h</td><td class="p">+0,60 €</td></tr>
           </tbody>
         </table>
         <p class="note" style="margin-top:var(--s0)">Mindestauftrag 190 € netto. Alle Preise zzgl. MwSt.</p>
@@ -567,7 +566,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
           <dt>Eingangsformate</dt><dd>.ply · .obj</dd>
           <dt>Max. Dateigröße</dt><dd>20 GB</dd>
           <dt>Min. Punktdichte</dt><dd>1 Pkt / 5 mm</dd>
-          <dt>Modellgenauigkeit</dt><dd>±10 mm</dd>
+          <dt>Zeichengenauigkeit</dt><dd>±10 mm</dd>
           <dt>Koordinatensystem</dt><dd>lokal · ETRS89 / UTM</dd>
           <dt>Raumbuch</dt><dd>CSV · DIN 277</dd>
           <dt>Datenhaltung</dt><dd>Frankfurt · DSGVO</dd>
@@ -584,7 +583,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
   <footer>
     <span class="logo" style="font-size:.95rem">points<b>2</b>plans</span>
     <div class="cols mono">
-      <span>Scan-to-Plan · Scan-to-BIM</span>
+      <span>Scan-to-Plan · 2D-Bestandspläne</span>
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
       <span>© <span id="yr">2026</span> points2plans</span>
@@ -871,7 +870,7 @@ const P2P_CONFIG = {
   };
   let auto = !reduce;
   btns.forEach(b => b.addEventListener('click', () => { auto = false; setMode(b.dataset.mode); }));
-  const order = ['cloud','plan','bim'];
+  const order = ['cloud','plan']; // 3D später: ['cloud','plan','bim']
   setInterval(() => { if (auto && performance.now()-lastInteract > 4000) setMode(order[(order.indexOf(mode)+1)%3]); }, 5200);
 
   /* ================= Upload ================= */
@@ -901,16 +900,15 @@ const P2P_CONFIG = {
   zone.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) takeFile(f); });
   $('file-clear').addEventListener('click', () => { file = null; showFile(); });
 
-  const rates = {pdf:.6, dwg:.8, ifc200:1.6, ifc300:2.4};
+  const rates = {pdf:.6, dwg:.8, full:.6};
   const eur = (n, d=0) => n.toLocaleString(D.locale,{style:'currency', currency:'EUR', minimumFractionDigits:d, maximumFractionDigits:d});
   const calc = () => {
     const area = Math.max(0, +$('area-in').value || 0);
-    const ifc = $('o-ifc').checked, lod = document.querySelector('[name=lod]:checked').value;
+    const full = $('scope-full').checked;
     let r = 0, days = 1;
     if ($('o-pdf').checked) r += rates.pdf;
     if ($('o-dwg').checked) { r += rates.dwg; days = 2; }
-    if (ifc) { r += lod==='300' ? rates.ifc300 : rates.ifc200; days = lod==='300' ? 3 : 2; }
-    $('lod-set').disabled = !ifc; $('lod-set').style.opacity = ifc ? 1 : .4;
+    if (r && full) { r += rates.full; days += 1; }
     const price = r ? Math.max(190, area*r) : 0;
     $('price').textContent = eur(price);
     $('rate').textContent = r ? eur(r,2) + '/m²' : D.chooseFormat;
@@ -926,7 +924,7 @@ const P2P_CONFIG = {
     $('sum').hidden = true; $('status').hidden = false; $('dl').hidden = true; $('again').hidden = true;
     const lis = [...$('steps').children]; lis.forEach(l => l.className='');
     lis[0].lastElementChild.textContent = fmtSize(file.size);
-    lis[2].lastElementChild.textContent = $('o-ifc').checked ? 'LOD ' + document.querySelector('[name=lod]:checked').value : '2D';
+    lis[2].lastElementChild.textContent = $('scope-full').checked ? D.scopeFull : D.scopePlan;
     let p = 0;
     const tick = () => {
       p = Math.min(100, p + (reduce ? 100 : 1.4));
@@ -936,7 +934,7 @@ const P2P_CONFIG = {
       if (p < 100) setTimeout(tick, 45);
       else {
         lis.forEach(l => l.className='done'); $('st-label').textContent = D.order + ' P2P-2611-0418' + D.done;
-        const sel = {IFC:$('o-ifc').checked, DWG:$('o-dwg').checked, PDF:$('o-pdf').checked};
+        const sel = {DWG:$('o-dwg').checked, PDF:$('o-pdf').checked};
         [...$('dl').children].forEach(b => b.hidden = !sel[b.dataset.f]);
         $('dl').hidden = false; $('again').hidden = false;
       }
