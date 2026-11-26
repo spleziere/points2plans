@@ -81,7 +81,7 @@ Solange `formEndpoint` leer ist, zeigt das Postfach „noch nicht freigeschaltet
 ### Muss vor dem Livegang erledigt sein
 - **Impressum und Datenschutz ausfüllen.** In Deutschland Pflicht, auch ohne Upload. Alle blau markierten `[…]`-Stellen ersetzen.
 - **Schriften selbst hosten.** Google Fonts direkt einzubinden wurde in Deutschland bereits abgemahnt (LG München, 2022). Die drei Schriften (Archivo, Inter Tight, JetBrains Mono) über https://gwfh.mranftl.com herunterladen, in einen Ordner `fonts/` legen und die `<link … fonts.googleapis.com>`-Zeilen durch `@font-face`-Regeln ersetzen.
-- **Inhalte prüfen.** Preise, Lieferzeiten, „±10 mm“, „Frankfurt“, „Ende-zu-Ende verschlüsselt“ und „Löschung nach 30 Tagen“ sind Platzhalter aus dem Mockup. Nur stehen lassen, was wirklich stimmt.
+- **Inhalte prüfen.** Preise, Lieferzeiten, „±30 mm“, „Frankfurt“, „Ende-zu-Ende verschlüsselt“ und „Löschung nach 30 Tagen“ sind Platzhalter aus dem Mockup. Nur stehen lassen, was wirklich stimmt.
 
 ### Für echte Aufträge (Backend)
 - **Upload großer Dateien:** direkt vom Browser in einen Objektspeicher in der EU (z. B. Hetzner Object Storage, Cloudflare R2, AWS S3 Frankfurt) über signierte URLs und Multipart-Upload, damit 20-GB-Dateien abbrechen und weiterlaufen können.

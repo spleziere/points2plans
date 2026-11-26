@@ -125,7 +125,8 @@ a{color:inherit}
 .modes button[aria-pressed="true"]{background:var(--ink); color:var(--paper)}
 .readout{position:absolute; left:var(--s1); bottom:var(--s1); display:flex; flex-direction:column; gap:.2rem; pointer-events:none}
 .readout .big{font-family:var(--f-display); font-variation-settings:"wdth" 110; font-weight:500; font-size:1.05rem; letter-spacing:-.01em}
-.coords{position:absolute; right:var(--s1); bottom:var(--s1); text-align:right; color:var(--mute); pointer-events:none; line-height:1.6}
+.coords{position:absolute; right:var(--s1); bottom:var(--s1); text-align:right; color:var(--mute); pointer-events:none; line-height:1.6; transition:opacity .4s}
+.viewer.is-plan .coords{opacity:0}
 .hint{position:absolute; right:var(--s1); top:calc(var(--s1) + .55rem); color:var(--mute); pointer-events:none}
 @media (max-width:700px){
   .viewer{aspect-ratio:4/5}
@@ -445,7 +446,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
 
   <div class="facts">
     <div><span class="label">Lieferzeit</span><strong>48 h</strong></div>
-    <div><span class="label">Genauigkeit</span><strong>±10 mm</strong></div>
+    <div><span class="label">Genauigkeit</span><strong>±30 mm</strong></div>
     <div><span class="label">Ab</span><strong>0,60 €/m²</strong></div>
     <div><span class="label">Rechenzentrum</span><strong>Frankfurt</strong></div>
   </div>
@@ -630,7 +631,7 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
           <dt>Eingangsformate</dt><dd>.ply · .obj</dd>
           <dt>Max. Dateigröße</dt><dd>20 GB</dd>
           <dt>Min. Punktdichte</dt><dd>1 Pkt / 5 mm</dd>
-          <dt>Zeichengenauigkeit</dt><dd>±10 mm</dd>
+          <dt>Zeichengenauigkeit</dt><dd>±30 mm</dd>
           <dt>Koordinatensystem</dt><dd>lokal · ETRS89 / UTM</dd>
           <dt>Raumbuch</dt><dd>CSV · DIN 277</dd>
           <dt>Datenhaltung</dt><dd>Frankfurt · DSGVO</dd>
@@ -756,14 +757,14 @@ const P2P_CONFIG = {
   ];
   // Door gaps: [x0,y0,x1,y1,swingSide, lintelZ]
   const doors = [
-    [1,6,2,6,-1,2.1],[1,10,2,10,-1,2.1],[9,4.6,9,5.5,1,2.1],[3,7,3,7.9,1,2.1],[10,7.5,10,8.4,-1,2.1]
+    [1,6,2,6,-1,2.1],[1,10,2,10,-1,2.1],[9,4.6,9,5.5,1,2.1],[3,7,3,7.9,-1,2.1],[10,7.5,10,8.4,-1,2.1]
   ];
   const openings = [[6.6,6,9,6,2.4]];
   const windows = [ // [x0,y0,x1,y1] along outer walls
     [1.5,0,3.5,0],[5,0,7.5,0],[10.5,0,12.5,0],[14,2,14,4],[7,10,9,10],[11,10,13,10]
   ];
   const rooms = [
-    ["Wohnen",4.5,3,54.0],["Schlafen",11.5,3,30.0],["Flur",1.5,8,12.0],["Bad",4.5,8,12.0],["Küche",8,8,16.0],["Arbeiten",12,8,16.0]
+    ["Wohnen",4.5,3,54.0],["Schlafen",11.5,3,30.0],["Flur",1.5,7.4,12.0],["Bad",4.75,8.3,12.0],["Küche",8,8,16.0],["Arbeiten",12,8,16.0]
   ];
   const boxes = [ // x0,y0,x1,y1,h
     [1.2,.6,4,1.5,.8],[5.4,2.5,7.6,3.6,.75],[10.6,.5,12.6,2.6,.5],[6.3,9.3,9.7,9.82,.9],[3.3,9.1,5,9.82,.55],[11,9.2,13,9.82,.75]
@@ -840,8 +841,10 @@ const P2P_CONFIG = {
   const poly = (arr) => { ctx.beginPath(); for (let i=0;i<arr.length;i++){ const p=proj(arr[i][0],arr[i][1],arr[i][2],tmp); i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]); } ctx.closePath(); };
   const wallCorners = (w, z) => {
     const [x0,y0,x1,y1,t] = w, len=Math.hypot(x1-x0,y1-y0), nx=-(y1-y0)/len*t/2, ny=(x1-x0)/len*t/2;
-    const ex=(x1-x0)/len*t/2*(w[5]?1:0), ey=(y1-y0)/len*t/2*(w[5]?1:0);
-    return [[x0+nx-ex,y0+ny-ey,z],[x1+nx+ex,y1+ny+ey,z],[x1-nx+ex,y1-ny+ey,z],[x0-nx-ex,y0-ny-ey,z]];
+    const corner = (x,y) => w[5] && (x===0||x===14) && (y===0||y===10);
+    const ux=(x1-x0)/len*t/2, uy=(y1-y0)/len*t/2;
+    const sx=corner(x0,y0)?ux:0, sy=corner(x0,y0)?uy:0, exx=corner(x1,y1)?ux:0, eyy=corner(x1,y1)?uy:0;
+    return [[x0+nx-sx,y0+ny-sy,z],[x1+nx+exx,y1+ny+eyy,z],[x1-nx+exx,y1-ny+eyy,z],[x0-nx-sx,y0-ny-sy,z]];
   };
 
   let t0 = performance.now();
@@ -854,8 +857,8 @@ const P2P_CONFIG = {
       else if (!reduce) yaw += .0022;
     }
     const pitch = cur.pitch*Math.PI/180; cp=Math.cos(pitch); sp=Math.sin(pitch); cyw=Math.cos(yaw); syw=Math.sin(yaw); zs=cur.zs;
-    S = Math.min(W/16.5, Hc/(11 + 3*(1-sp))) * (W<700 ? .95 : .9);
-    cx = W/2; cy = Hc/2 + (W<700 ? Hc*.03 : 0);
+    S = Math.min(W/16.5, Hc/(11 + 3*(1-sp) + 2.2*cur.planA)) * (W<700 ? .95 : .9);
+    cx = W/2; cy = Hc/2 + (W<700 ? Hc*.03 : 0) - cur.planA*Hc*.025;
 
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,W,Hc);
@@ -947,7 +950,9 @@ const P2P_CONFIG = {
       // doors
       ctx.strokeStyle = rgba(col.mute, a); ctx.lineWidth=.8;
       doors.forEach(d => {
-        const [x0,y0,x1,y1,s] = d, len=Math.hypot(x1-x0,y1-y0), ux=(x1-x0)/len, uy=(y1-y0)/len, nx=-uy*s, ny=ux*s;
+        const [ax,ay,x1,y1,s] = d, len=Math.hypot(x1-ax,y1-ay), ux=(x1-ax)/len, uy=(y1-ay)/len, nx=-uy*s, ny=ux*s;
+        const outer = (ay===y1 && (ay===0||ay===10)) || (ax===x1 && (ax===0||ax===14));
+        const off = outer ? .18 : .07, x0 = ax+nx*off, y0 = ay+ny*off;
         ctx.beginPath();
         for (let i=0;i<=16;i++){ const th=i/16*Math.PI/2; const x=x0+(ux*Math.cos(th)+nx*Math.sin(th))*len, y=y0+(uy*Math.cos(th)+ny*Math.sin(th))*len; proj(x,y,0,tmp); i?ctx.lineTo(tmp[0],tmp[1]):ctx.moveTo(tmp[0],tmp[1]); }
         proj(x0,y0,0,tmp); ctx.lineTo(tmp[0],tmp[1]); ctx.stroke();
@@ -1000,6 +1005,7 @@ const P2P_CONFIG = {
   const bimRo = `IFC 4 · ${walls.length} IfcWall · ${doors.length} IfcDoor · ${windows.length} IfcWindow`;
   const btns = [...document.querySelectorAll('.modes button')];
   const setMode = m => {
+    viewer.classList.toggle('is-plan', m === 'plan');
     mode = m; btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode===m));
     document.getElementById('ro-k').textContent = D.ro[m][0];
     document.getElementById('ro-v').textContent = D.ro[m][1] || bimRo;
