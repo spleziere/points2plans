@@ -348,6 +348,8 @@ dialog.mail[open]{animation:mail-in .28s cubic-bezier(.2,.8,.2,1)}
 .svg-accfill{fill:var(--accent-soft); stroke:var(--accent)}
 .svg-mute{stroke:var(--mute); fill:none}
 .svg-text{fill:var(--mute); font-family:var(--f-mono); font-size:7px; letter-spacing:.04em}
+.svg-label{fill:var(--ink); font-family:var(--f-body); font-size:6.5px; font-weight:500}
+.svg-text.tb{font-size:3.9px; letter-spacing:.02em; fill:var(--ink)}
 .svg-paper{fill:var(--paper)}
 @media (max-width:860px){ .formats{grid-template-columns:1fr} }
 
@@ -543,16 +545,20 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
         <div class="art">
           <span class="label">Grundriss</span>
           <svg viewBox="0 0 200 150" aria-label="Grundriss mit Wänden und Türen">
-            <g class="svg-fill">
-              <path d="M30 22h140v4H30zM30 124h140v4H30zM30 22h4v106h-4zM166 22h4v106h-4z"/>
-              <path d="M34 82h28v1.6H34zM74 82h30v1.6H74zM122 82h44v1.6H122zM100 26h1.6v18h-1.6zM100 56h1.6v26.8h-1.6zM70 83h1.6v41h-1.6z"/>
-            </g>
-            <g class="svg-paper"><rect x="44" y="123.5" width="18" height="5"/><rect x="118" y="123.5" width="26" height="5"/><rect x="165.5" y="40" width="5" height="20"/></g>
-            <g class="svg-ink" stroke-width=".5"><path d="M44 125h18M44 127h18M118 125h26M118 127h26M167.5 40v20M169 40v20"/></g>
-            <g class="svg-mute" stroke-width=".6"><path d="M62 83.6a12 12 0 0 1 12-12M62 83.6V71.6"/><path d="M101.6 44a12 12 0 0 1 12 12h-12"/></g>
-            <g class="svg-acc" stroke-width=".6"><path d="M30 140h140M30 137v6M170 137v6M100 137v6"/></g>
-            <text x="58" y="138" class="svg-text">7,00</text><text x="128" y="138" class="svg-text">7,00</text>
-            <text x="42" y="56" class="svg-text">Wohnen 31,4 m²</text><text x="118" y="104" class="svg-text">Schlafen 18,0 m²</text>
+            <path class="svg-fill" d="M34 22H53.8V25.3H34ZM91.2 22H125.3V25.3H91.2ZM151.7 22H166V25.3H151.7ZM34 106.7H56V110H34ZM84.6 106.7H166V110H84.6ZM34 22H37.3V57.2H34ZM34 68.2H37.3V110H34ZM162.7 22H166V37.4H162.7ZM162.7 61.6H166V110H162.7ZM110.17 25.3H111.83V39.6H110.17ZM110.17 49.5H111.83V106.7H110.17ZM37.3 76.17H62.6V77.83H37.3ZM72.5 76.17H124.2V77.83H72.5ZM134.1 76.17H162.7V77.83H134.1Z"/>
+            <path class="svg-ink" stroke-width="0.45" d="M53.8 22H91.2M53.8 23.65H91.2M53.8 25.3H91.2M53.8 22V25.3M91.2 22V25.3M125.3 22H151.7M125.3 23.65H151.7M125.3 25.3H151.7M125.3 22V25.3M151.7 22V25.3M56 110H84.6M56 108.35H84.6M56 106.7H84.6M56 110V106.7M84.6 110V106.7M166 37.4V61.6M164.35 37.4V61.6M162.7 37.4V61.6M166 37.4H162.7M166 61.6H162.7"/>
+            <path class="svg-mute" stroke-width="0.6" d="M111 39.6L120.9 39.6A9.9 9.9 0 0 1 111 49.5M62.6 77L62.6 67.1A9.9 9.9 0 0 1 72.5 77M37.3 57.2L48.3 57.2A11 11 0 0 1 37.3 68.2M134.1 77L134.1 86.9A9.9 9.9 0 0 1 124.2 77"/>
+            <text x="72.5" y="49.1" text-anchor="middle" class="svg-label">Wohnen</text>
+            <text x="72.5" y="57.1" text-anchor="middle" class="svg-text">35,0 m²</text>
+            <text x="140.15" y="51.3" text-anchor="middle" class="svg-label">Schlafen</text>
+            <text x="140.15" y="59.3" text-anchor="middle" class="svg-text">25,0 m²</text>
+            <text x="72.5" y="94.75" text-anchor="middle" class="svg-label">Küche</text>
+            <text x="72.5" y="102.75" text-anchor="middle" class="svg-text">21,0 m²</text>
+            <text x="138.5" y="94.75" text-anchor="middle" class="svg-label">Bad</text>
+            <text x="138.5" y="102.75" text-anchor="middle" class="svg-text">15,0 m²</text>
+            <path class="svg-acc" stroke-width=".6" d="M34 123.75H166M32 125.75L36 121.75M34 112.75V126.25M109 125.75L113 121.75M111 112.75V126.25M164 125.75L168 121.75M166 112.75V126.25"/>
+            <text x="72.5" y="121.55" text-anchor="middle" class="svg-text">7,00</text>
+            <text x="138.5" y="121.55" text-anchor="middle" class="svg-text">5,00</text>
           </svg>
         </div>
         <h3>DWG <span class="mono">AutoCAD 2018</span></h3>
@@ -562,19 +568,15 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
         <div class="art">
           <span class="label">Plansatz</span>
           <svg viewBox="0 0 200 150" aria-label="PDF-Planblatt mit Schriftfeld">
-            <rect x="26" y="14" width="148" height="122" class="svg-paper" stroke="none"/>
-            <rect x="26" y="14" width="148" height="122" class="svg-ink" stroke-width=".8"/>
-            <rect x="30" y="18" width="140" height="114" class="svg-ink" stroke-width=".4"/>
-            <g class="svg-fill" opacity=".9"><path d="M42 30h70v2H42zM42 92h70v2H42zM42 30h2v64h-2zM110 30h2v64h-2zM44 60h30v1H44zM78 30h1v31h-1z"/></g>
-            <g class="svg-ink" stroke-width=".4"><path d="M122 100h48M122 108h48M122 116h48M122 124h48M122 100v32M146 108v24"/></g>
-            <rect x="122" y="100" width="48" height="8" class="svg-accfill" stroke-width=".4"/>
-            <text x="125" y="106" class="svg-text" style="font-size:5px">POINTS2PLANS</text>
-            <text x="125" y="114" class="svg-text" style="font-size:4.5px">Grundriss 3. OG</text>
-            <text x="125" y="122" class="svg-text" style="font-size:4.5px">M 1:50</text>
-            <text x="149" y="122" class="svg-text" style="font-size:4.5px">A3</text>
-            <text x="125" y="130" class="svg-text" style="font-size:4.5px">Blatt 01</text>
-            <text x="149" y="130" class="svg-text" style="font-size:4.5px">26.11.26</text>
-            <g class="svg-mute" stroke-width=".4"><path d="M42 100h70M42 98v4M112 98v4"/></g>
+            <rect x="24" y="22" width="152" height="107.5" class="svg-paper"/>
+            <rect x="24" y="22" width="152" height="107.5" class="svg-ink" stroke-width=".6"/>
+            <rect x="33" y="26" width="139" height="99.5" class="svg-ink" stroke-width=".4"/>
+            <path class="svg-fill" d="M41 35H51.8V36.8H41ZM72.2 35H90.8V36.8H72.2ZM105.2 35H113V36.8H105.2ZM41 81.2H53V83H41ZM68.6 81.2H113V83H68.6ZM41 35H42.8V54.2H41ZM41 60.2H42.8V83H41ZM111.2 35H113V43.4H111.2ZM111.2 56.6H113V83H111.2ZM82.55 36.8H83.45V44.6H82.55ZM82.55 50H83.45V81.2H82.55ZM42.8 64.55H56.6V65.45H42.8ZM62 64.55H90.2V65.45H62ZM95.6 64.55H111.2V65.45H95.6Z"/>
+            <path class="svg-ink" stroke-width="0.32" d="M51.8 35H72.2M51.8 35.9H72.2M51.8 36.8H72.2M51.8 35V36.8M72.2 35V36.8M90.8 35H105.2M90.8 35.9H105.2M90.8 36.8H105.2M90.8 35V36.8M105.2 35V36.8M53 83H68.6M53 82.1H68.6M53 81.2H68.6M53 83V81.2M68.6 83V81.2M113 43.4V56.6M112.1 43.4V56.6M111.2 43.4V56.6M113 43.4H111.2M113 56.6H111.2"/>
+            <path class="svg-mute" stroke-width="0.42" d="M83 44.6L88.4 44.6A5.4 5.4 0 0 1 83 50M56.6 65L56.6 59.6A5.4 5.4 0 0 1 62 65M42.8 54.2L48.8 54.2A6 6 0 0 1 42.8 60.2M95.6 65L95.6 70.4A5.4 5.4 0 0 1 90.2 65"/>
+            <path class="svg-ink" stroke-width=".4" d="M41 90h30M41 88.5v3M71 88.5v3M56 89v2"/><text x="73.5" y="91.4" class="svg-text tb">5 m</text>
+            <circle cx="163" cy="36" r="4.5" class="svg-ink" stroke-width=".4"/><path class="svg-fill" d="M163 31.5L165 38.5L163 37.2Z"/><text x="163" y="29.5" text-anchor="middle" class="svg-text tb">N</text>
+            <rect x="118" y="100.7" width="54" height="6.2" class="svg-accfill" stroke-width=".4"/><path class="svg-ink" stroke-width=".4" d="M118 100.7V125.5M118 106.9H172M118 113.1H172M118 119.3H172M147.5 113.1V125.5"/><text x="120.5" y="105" class="svg-text tb" font-weight="500">POINTS2PLANS</text><text x="120.5" y="111.2" class="svg-text tb">Grundriss 3. OG</text><text x="120.5" y="117.4" class="svg-text tb">M 1:50</text><text x="150" y="117.4" class="svg-text tb">A3</text><text x="120.5" y="123.6" class="svg-text tb">Blatt 01</text><text x="150" y="123.6" class="svg-text tb">26.11.26</text>
           </svg>
         </div>
         <h3>PDF <span class="mono">PDF/A-1b · A3 / A1</span></h3>

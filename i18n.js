@@ -202,6 +202,16 @@ window.P2P_I18N = {
     "Anfrage senden": { en: "Send request", es: "Enviar solicitud" },
     "Anfrage ist angekommen.": { en: "Request received.", es: "Solicitud recibida." },
     "Danke. Wir melden uns innerhalb eines Werktags mit Festpreis und Liefertermin.": { en: "Thank you. We reply within one working day with a fixed price and delivery date.", es: "Gracias. Le respondemos en un día laborable con precio fijo y fecha de entrega." },
+    /* Planzeichnungen */
+    "Wohnen": { en: "Living", es: "Salón" },
+    "Schlafen": { en: "Bedroom", es: "Dormitorio" },
+    "Küche": { en: "Kitchen", es: "Cocina" },
+    "Bad": { en: "Bath", es: "Baño" },
+    "35,0 m²": { en: "35.0 m²", es: "35,0 m²" },
+    "25,0 m²": { en: "25.0 m²", es: "25,0 m²" },
+    "21,0 m²": { en: "21.0 m²", es: "21,0 m²" },
+    "15,0 m²": { en: "15.0 m²", es: "15,0 m²" },
+    "5,00": { en: "5.00", es: "5,00" },
     /* aria-labels */
     "Hauptnavigation": { en: "Main navigation", es: "Navegación principal" },
     "points2plans Startseite": { en: "points2plans home", es: "Inicio points2plans" },
