@@ -23,6 +23,7 @@ window.P2P_I18N = {
     "Formate": { en: "Formats", es: "Formatos" },
     "Preise": { en: "Pricing", es: "Precios" },
     "Hochladen": { en: "Upload", es: "Subir" },
+    "Dunkles Design": { en: "Dark mode", es: "Modo oscuro" },
     "Aus": { en: "From", es: "De" },
     "Punkten": { en: "points", es: "puntos" },
     "werden Pläne": { en: "to plans", es: "a planos" },

@@ -10,6 +10,10 @@
 <meta property="og:title" content="points2plans">
 <meta property="og:description" content="Aus Punkten werden Pläne. Punktwolke hochladen, Grundriss als DWG oder PDF herunterladen.">
 <meta property="og:type" content="website">
+<script>
+/* Farbschema: gespeicherte Wahl sofort setzen, bevor die Seite gezeichnet wird (kein Aufblitzen). Ohne Wahl gilt die Systemeinstellung. */
+(function(){try{var t=localStorage.getItem('p2p-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#111316':'#ECEDEA';document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute('content',c)})}}catch(e){}})();
+</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://points2plans.com/">
 <link rel="alternate" hreflang="de" href="https://points2plans.com/">
@@ -90,16 +94,36 @@ a{color:inherit}
 .lang button{font:500 .6875rem/1 var(--f-mono); letter-spacing:.08em; color:var(--mute); background:none; border:0; padding:.5rem .4rem; cursor:pointer; border-radius:3px}
 .lang button:hover{color:var(--ink)}
 .lang button[aria-pressed="true"]{color:var(--ink); box-shadow:inset 0 -1.5px 0 var(--accent)}
+.theme{display:inline-grid; place-items:center; width:2rem; height:2rem; flex:none; padding:0; cursor:pointer; color:var(--mute); background:none; border:1px solid var(--rule); border-radius:999px; transition:color .2s ease, border-color .2s ease}
+.theme:hover{color:var(--accent); border-color:var(--accent)}
+.theme svg{width:15px; height:15px}
+.theme .sun{display:none}
+:root[data-theme="dark"] .theme .sun{display:block}
+:root[data-theme="dark"] .theme .moon{display:none}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .theme .sun{display:block}
+  :root:not([data-theme="light"]) .theme .moon{display:none}
+}
 @media (max-width:760px){ .nav ul{display:none} }
 @media (max-width:460px){
   .nav{gap:.5rem}
   .nav-r{gap:.35rem}
   .logo{gap:.45rem; font-size:1rem}
   .lang button{padding:.5rem .3rem}
+  .theme{width:1.85rem; height:1.85rem}
   .nav-r .btn{padding:.7rem .85rem}
   .nav-r .btn svg{display:none}
 }
-@media (max-width:350px){ .logo span{display:none} }
+@media (max-width:400px){
+  .nav{gap:.35rem}
+  .nav-r{gap:.25rem}
+  .logo{gap:.35rem; font-size:.92rem}
+  .logo svg{width:22px; height:22px}
+  .lang button{padding:.5rem .15rem}
+  .theme{width:1.75rem; height:1.75rem}
+  .nav-r .btn{padding:.7rem .6rem}
+}
+@media (max-width:356px){ .logo span{display:none} }
 
 /* ---------- Hero ---------- */
 .hero{padding-block:var(--s4) var(--s3); display:grid; grid-template-columns:repeat(12,1fr); gap:var(--s2) var(--s1); align-items:end}
@@ -424,6 +448,10 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
       <button type="button" data-lang="es" aria-pressed="false">ES</button>
     </div>
+    <button type="button" class="theme" id="theme" aria-label="Dunkles Design" aria-pressed="false">
+      <svg class="moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 0 1 6.4 2.5a5.6 5.6 0 1 0 7.1 7.1Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <svg class="sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
     <a class="btn" href="#upload">Hochladen
       <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 11V3M3.5 6.5 7 3l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
     </a>
@@ -748,6 +776,26 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script>
+/* Hell/Dunkel-Schalter: wechselt zwischen hellem und dunklem Design und merkt sich die Wahl. */
+(function(){
+  const root = document.documentElement, btn = document.getElementById('theme'), mq = matchMedia('(prefers-color-scheme: dark)');
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : mq.matches;
+  const sync = () => {
+    btn.setAttribute('aria-pressed', String(isDark()));
+    if (root.getAttribute('data-theme')) metas.forEach(m => m.setAttribute('content', isDark() ? '#111316' : '#ECEDEA'));
+  };
+  btn.addEventListener('click', () => {
+    const t = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', t);
+    try { localStorage.setItem('p2p-theme', t); } catch (e) {}
+    sync();
+  });
+  mq.addEventListener('change', sync);
+  sync();
+})();
+</script>
 <script src="i18n.js"></script>
 <script>
 /* ============================================================
