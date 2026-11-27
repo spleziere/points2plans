@@ -374,7 +374,7 @@ dialog.mail[open]{animation:mail-in .28s cubic-bezier(.2,.8,.2,1)}
 .fmt .art{aspect-ratio:4/3; max-width:100%; background:var(--surface); display:grid; place-items:center; padding:var(--s2); position:relative}
 .fmt .art svg{width:100%; height:100%}
 .fmt .art .label{position:absolute; top:var(--s0); left:var(--s0)}
-.fmt.soon .art svg{opacity:.38}
+.fmt.soon .art svg text{opacity:.6}
 .fmt.soon h3{color:var(--mute)}
 .fmt h3{margin:0; display:flex; align-items:baseline; justify-content:space-between; gap:var(--s0); font-family:var(--f-display); font-variation-settings:"wdth" 120; font-weight:400; font-size:1.9rem; letter-spacing:-.03em}
 .fmt h3 .mono{color:var(--mute); font-size:.7rem}
@@ -388,6 +388,29 @@ dialog.mail[open]{animation:mail-in .28s cubic-bezier(.2,.8,.2,1)}
 .svg-label{fill:var(--ink); font-family:var(--f-body); font-size:6.5px; font-weight:500}
 .svg-text.tb{font-size:3.9px; letter-spacing:.02em; fill:var(--ink)}
 .svg-paper{fill:var(--paper)}
+.bim-floor{fill:var(--accent-soft)}
+.bim-wall-a,.bim-wall-b,.bim-rev,.bim-rev2,.bim-top,.bim-sill,.bim-dry,.bim-leaf{stroke:var(--ink); stroke-width:.3}
+.bim-wall-a{fill:color-mix(in srgb,var(--ink) 4%,var(--surface))}
+.bim-wall-b{fill:color-mix(in srgb,var(--ink) 9%,var(--surface))}
+.bim-rev{fill:color-mix(in srgb,var(--ink) 16%,var(--surface))}
+.bim-rev2{fill:color-mix(in srgb,var(--ink) 12%,var(--surface))}
+.bim-top{fill:color-mix(in srgb,var(--ink) 2%,var(--surface))}
+.bim-sill{fill:var(--surface)}
+.bim-dry{fill:color-mix(in srgb,var(--ink) 3%,var(--surface))}
+.bim-cut{fill:url(#bim-hatch)}
+.bim-cut-bg{fill:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.bim-hatch{stroke:var(--accent); stroke-width:.32}
+.bim-ins{fill:url(#bim-dots)}
+.bim-ins-bg{fill:var(--surface)}
+.bim-dot{fill:var(--mute)}
+.bim-gk{fill:var(--surface)}
+.bim-frame{fill:var(--surface); stroke:var(--accent); stroke-width:.3}
+.bim-glass{fill:color-mix(in srgb,var(--accent) 24%,transparent); stroke:var(--accent); stroke-width:.2}
+.bim-glint{fill:none; stroke:#fff; stroke-width:.45; stroke-linecap:round; opacity:.7}
+.bim-leaf{fill:color-mix(in srgb,var(--accent) 10%,var(--surface)); stroke:var(--accent)}
+.bim-handle{fill:none; stroke:var(--ink); stroke-width:.45; stroke-linecap:round}
+.bim-edge{fill:none; stroke:var(--ink); stroke-width:.65; stroke-linecap:round; stroke-linejoin:round}
+.bim-thin{fill:none; stroke:var(--ink); stroke-width:.22; opacity:.55}
 @media (max-width:860px){ .formats{grid-template-columns:1fr} }
 
 /* ---------- Pricing + specs ---------- */
@@ -630,17 +653,65 @@ footer .cols{display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3)}
         <div class="art">
           <span class="label">Demnächst</span>
           <svg viewBox="0 0 200 150" aria-label="Axonometrische Darstellung eines BIM-Modells">
-            <g stroke-width=".8" stroke-linejoin="round">
-              <path d="M40 92 100 122 165 90 105 60Z" class="svg-accfill" stroke-width=".6"/>
-              <path d="M40 92V52L105 20V60Z" class="svg-paper" stroke="none"/>
-              <path d="M40 92V52L105 20V60L40 92" class="svg-ink"/>
-              <path d="M105 60V20L165 50V90Z" class="svg-paper" stroke="none"/>
-              <path d="M105 60V20L165 50V90" class="svg-ink"/>
-              <path d="M58 83V65L74 57V75Z" class="svg-acc"/>
-              <path d="M82 71V53L96 46V64Z" class="svg-acc"/>
-              <path d="M125 70V48L140 55.5V77.5Z" class="svg-acc"/>
-              <path d="M72 107V76L132 46" class="svg-mute" stroke-dasharray="2 2"/>
-              <path d="M72 76 100 90 160 60" class="svg-mute" stroke-dasharray="2 2"/>
+            <defs>
+              <pattern id="bim-hatch" width="1.5" height="1.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1.5" height="1.5" class="bim-cut-bg"/><path d="M0 0V1.5" class="bim-hatch"/></pattern>
+              <pattern id="bim-dots" width="1.2" height="1.2" patternUnits="userSpaceOnUse"><rect width="1.2" height="1.2" class="bim-ins-bg"/><circle cx=".6" cy=".6" r=".22" class="bim-dot"/></pattern>
+            </defs>
+            <g stroke-linejoin="round">
+              <path d="M166.86 90.47L108.17 124.35L108.17 127.32L166.86 93.44Z" class="bim-cut"/>
+              <path d="M33.11 81.01L108.17 124.35L108.17 127.32L33.11 83.98Z" class="bim-cut"/>
+              <path d="M91.8 47.13L166.86 90.47L108.17 124.35L33.11 81.01Z" class="bim-floor"/>
+              <path d="M71.69 46.59L74.8 48.39L74.8 30.16L71.69 28.36Z" class="bim-rev"/>
+              <path d="M71.69 46.59L52.98 57.39L56.09 59.19L74.8 48.39Z" class="bim-top"/>
+              <path d="M74.8 48.39L56.09 59.19L56.09 40.96L74.8 30.16Z" class="bim-frame"/>
+              <path d="M73.98 47.91L65.86 52.6L65.86 36.27L73.98 31.58ZM65.04 53.08L56.91 57.77L56.91 41.43L65.04 36.74Z" class="bim-glass"/>
+              <path d="M71.06 35.29L73.05 38.87" class="bim-glint"/>
+              <path d="M62.12 40.45L64.1 44.03" class="bim-glint"/>
+              <path d="M74.8 48.39L76.6 49.42L76.6 31.2L74.8 30.16Z" class="bim-rev"/>
+              <path d="M74.8 48.39L56.09 59.19L57.9 60.22L76.6 49.42Z" class="bim-top"/>
+              <path d="M91.8 52.8L38.02 83.85L38.02 46.72L91.8 15.67ZM76.6 49.42L57.9 60.22L57.9 42L76.6 31.2Z" class="bim-wall-a" fill-rule="evenodd"/>
+              <path d="M104.89 42.54L101.78 44.34L101.78 26.11L104.89 24.31Z" class="bim-rev2"/>
+              <path d="M104.89 42.54L121.26 51.99L118.15 53.79L101.78 44.34Z" class="bim-top"/>
+              <path d="M101.78 44.34L118.15 53.79L118.15 35.56L101.78 26.11Z" class="bim-frame"/>
+              <path d="M102.6 43.86L109.56 47.88L109.56 31.54L102.6 27.53ZM110.38 48.35L117.33 52.37L117.33 36.03L110.38 32.02Z" class="bim-glass"/>
+              <path d="M103.54 34.82L105.53 31.24" class="bim-glint"/>
+              <path d="M111.31 39.31L113.3 35.73" class="bim-glint"/>
+              <path d="M101.78 44.34L99.98 45.38L99.98 27.15L101.78 26.11Z" class="bim-rev2"/>
+              <path d="M101.78 44.34L118.15 53.79L116.35 54.82L99.98 45.38Z" class="bim-top"/>
+              <path d="M149.91 80.68L145 83.51L145 55.16L149.91 52.33Z" class="bim-rev2"/>
+              <path d="M91.8 52.8L161.95 93.3L161.95 56.17L91.8 15.67ZM99.98 45.38L116.35 54.82L116.35 36.6L99.98 27.15ZM145 83.51L156.1 89.92L156.1 61.57L145 55.16Z" class="bim-wall-b" fill-rule="evenodd"/>
+              <path d="M77.19 49.09L57.31 60.56L58.71 61.37L78.59 49.9Z" class="bim-sill"/>
+              <path d="M78.59 49.9L58.71 61.37L58.71 62.05L78.59 50.57Z" class="bim-sill"/>
+              <path d="M57.31 60.56L58.71 61.37L58.71 62.05L57.31 61.24Z" class="bim-sill"/>
+              <path d="M99.4 45.04L116.94 55.16L115.53 55.97L98 45.85Z" class="bim-sill"/>
+              <path d="M98 45.85L115.53 55.97L115.53 56.65L98 46.52Z" class="bim-sill"/>
+              <path d="M116.94 55.16L115.53 55.97L115.53 56.65L116.94 55.84Z" class="bim-sill"/>
+              <path d="M144 83.28L156.51 90.5L156.51 61.34L144 54.12ZM144.7 83.68L155.81 90.09L155.81 61.74L144.7 55.33Z" class="bim-frame" fill-rule="evenodd"/>
+              <path d="M156.8 90.33L156.51 90.5L156.51 61.34L156.8 61.17Z" class="bim-frame"/>
+              <path d="M144.29 53.95L156.8 61.17L156.51 61.34L144 54.12Z" class="bim-frame"/>
+              <path d="M91.8 11.89L165.22 54.28L161.95 56.17L91.8 15.67L38.02 46.72L34.75 44.83Z" class="bim-cut"/>
+              <path d="M91.8 10L166.86 53.34L165.22 54.28L91.8 11.89L34.75 44.83L33.11 43.89Z" class="bim-ins"/>
+              <path d="M34.75 81.96L38.02 83.85L38.02 46.72L34.75 44.83Z" class="bim-cut"/>
+              <path d="M33.11 81.01L34.75 81.96L34.75 44.83L33.11 43.89Z" class="bim-ins"/>
+              <path d="M165.22 91.41L161.95 93.3L161.95 56.17L165.22 54.28Z" class="bim-cut"/>
+              <path d="M166.86 90.47L165.22 91.41L165.22 54.28L166.86 53.34Z" class="bim-ins"/>
+              <path d="M33.11 83.98L33.11 43.89L91.8 10L166.86 53.34L166.86 93.44" class="bim-edge"/>
+              <path d="M38.02 83.85L38.02 46.72L91.8 15.67L161.95 56.17L161.95 93.3" class="bim-edge"/>
+              <path d="M33.11 83.98L108.17 127.32L166.86 93.44" class="bim-edge"/>
+              <path d="M33.11 81.01L108.17 124.35L166.86 90.47" class="bim-edge"/>
+              <path d="M34.75 81.96L34.75 44.83L91.8 11.89L165.22 54.28L165.22 91.41" class="bim-thin"/>
+              <path d="M155.91 90.3L141.21 92.9L141.21 64.82L155.91 62.22Z" class="bim-leaf"/>
+              <path d="M155.69 61.81L140.99 64.41L141.21 64.82L155.91 62.22Z" class="bim-leaf"/>
+              <path d="M140.99 92.49L141.21 92.9L141.21 64.82L140.99 64.41Z" class="bim-leaf"/>
+              <path d="M143.1 78.52L143.39 79.07L145.29 78.74" class="bim-handle"/>
+              <path d="M139.15 80.14L115.18 93.97L115.18 56.85L139.15 43.01Z" class="bim-dry"/>
+              <path d="M137.4 42L139.15 43.01L115.18 56.85L113.43 55.84Z" class="bim-gk"/>
+              <path d="M137.69 42.17L138.86 42.84L114.89 56.68L113.72 56.01Z" class="bim-ins"/>
+              <path d="M113.43 92.96L115.18 93.97L115.18 56.85L113.43 55.84Z" class="bim-gk"/>
+              <path d="M113.72 93.13L114.89 93.81L114.89 56.68L113.72 56.01Z" class="bim-ins"/>
+              <path d="M113.43 92.96L113.43 55.84L137.4 42" class="bim-edge"/>
+              <path d="M139.15 43.01L115.18 56.85L115.18 93.97" class="bim-edge"/>
+              <path d="M113.43 55.84L115.18 56.85" class="bim-edge"/>
             </g>
             <text x="8" y="142" class="svg-text">IfcWall ×31 · IfcDoor ×5 · IfcWindow ×6</text>
           </svg>
